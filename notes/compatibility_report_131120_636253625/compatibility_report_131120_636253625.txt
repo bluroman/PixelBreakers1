@@ -1,0 +1,380 @@
+Converting GML script: ${project_dir}/scripts/scr_button/scr_button.gml
+Converted description /// @description argument0:sprite_index, argument1:x position, argument2:y position
+
+Converting GML script: ${project_dir}/scripts/scr_init_globals/scr_init_globals.gml
+Converted description /// @description Initialize all the global variables
+
+Converting GML script: ${project_dir}/scripts/scr_set_lives_score/scr_set_lives_score.gml
+Converted description /// @description Set lives and score locally
+
+Converting GML script: ${project_dir}/scripts/scr_sfx_gain/scr_sfx_gain.gml
+Converted description /// @description set sfx gain if any sfx added then add gain for that sound
+
+Converting GML script: ${project_dir}/scripts/adjust_view/adjust_view.gml
+Converted builtin - line 7: view_wview = w -> __view_set( e__VW.WView, 0, w )
+Converted builtin - line 8: view_hview = h -> __view_set( e__VW.HView, 0, h )
+Converted builtin - line 9: view_wport = w -> __view_set( e__VW.WPort, 0, w )
+Converted builtin - line 10: view_hport = h -> __view_set( e__VW.HPort, 0, h )
+
+Converting GML script: ${project_dir}/scripts/scr_init_levels/scr_init_levels.gml
+Converted description /// @description Setup the world and level menu
+
+Converting GML script: ${project_dir}/scripts/scr_achievement_met/scr_achievement_met.gml
+Converted builtin - line 1: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 1: view_wview -> __view_get( e__VW.WView, 0 )
+
+Converting GML script: ${project_dir}/scripts/scr_land_access/scr_land_access.gml
+Converted description /// @description determine land access
+
+Converting GML script: ${project_dir}/scripts/scr_access_method/scr_access_method.gml
+Converted description /// @description argument0:land index argument1:enabled or not
+
+Converting GML script: ${project_dir}/scripts/scr_set_screen_size/scr_set_screen_size.gml
+Converted builtin - line 18: view_wview[0] -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 48: view_wview[0] -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 49: view_wview[0] -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 14: view_wview[0] = max_w -> __view_set( e__VW.WView, 0, max_w )
+Converted builtin - line 39: view_wview[0] = floor(VIEW_WIDTH) -> __view_set( e__VW.WView, 0, floor(VIEW_WIDTH) )
+Converted builtin - line 18: view_hview[0] -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 48: view_hview[0] -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 50: view_hview[0] -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 15: view_hview[0] = max_h -> __view_set( e__VW.HView, 0, max_h )
+Converted builtin - line 40: view_hview[0] = floor(VIEW_HEIGHT) -> __view_set( e__VW.HView, 0, floor(VIEW_HEIGHT) )
+Converted builtin - line 16: view_wport[0] = max_w -> __view_set( e__VW.WPort, 0, max_w )
+Converted builtin - line 41: view_wport[0] = max_w -> __view_set( e__VW.WPort, 0, max_w )
+Converted builtin - line 17: view_hport[0] = max_h -> __view_set( e__VW.HPort, 0, max_h )
+Converted builtin - line 42: view_hport[0] = max_h -> __view_set( e__VW.HPort, 0, max_h )
+
+Converting GML script: ${project_dir}/scripts/scr_default_access_method/scr_default_access_method.gml
+Converted description /// @description argument0:land index argument1:level index
+
+!!! Font font0 uses a font (@굴림체) not installed on this system - Font has NOT been regenerated
+GameMaker Studio 1 font texture has been backed up at ${project_dir}/fonts/font0/font0.gms1.png
+!!! Font font1 uses a font (Acens) not installed on this system - Font has NOT been regenerated
+GameMaker Studio 1 font texture has been backed up at ${project_dir}/fonts/font1/font1.gms1.png
+!!! Font font2 uses a font (Acens) not installed on this system - Font has NOT been regenerated
+GameMaker Studio 1 font texture has been backed up at ${project_dir}/fonts/font2/font2.gms1.png
+!!! Font font3 uses a font (Acens) not installed on this system - Font has NOT been regenerated
+GameMaker Studio 1 font texture has been backed up at ${project_dir}/fonts/font3/font3.gms1.png
+!!! Font font4 uses a font (Acens) not installed on this system - Font has NOT been regenerated
+GameMaker Studio 1 font texture has been backed up at ${project_dir}/fonts/font4/font4.gms1.png
+Converting GML script: ${project_dir}/timelines/timeline0/moment_400.gml
+Converted description /// @description ball speed +3
+
+Converting GML script: ${project_dir}/timelines/timeline0/moment_600.gml
+Converted description /// @description ball speed +3
+
+Converting GML script: ${project_dir}/timelines/timeline0/moment_900.gml
+Converted description /// @description ball speed +4
+
+Converting GML script: ${project_dir}/timelines/timeline0/moment_1500.gml
+Converted description /// @description ball speed +4
+
+Converting GML script: ${project_dir}/timelines/timeline0/moment_1800.gml
+Converted description /// @description ball speed +4
+
+Converting GML script: ${project_dir}/timelines/timeline0/moment_2100.gml
+Converted description /// @description ball speed +5
+
+Converting GML script: ${project_dir}/objects/obj_congratulations/Alarm_2.gml
+Converted description /// @description achivement met?newbie, novice, amateur, professional, expert
+
+Converting GML script: ${project_dir}/objects/obj_congratulations/Alarm_1.gml
+Converted description /// @description blink "Tap here go to next"
+
+Converting GML script: ${project_dir}/objects/obj_congratulations/Alarm_0.gml
+Converted description /// @description Save World_Access, Level_Access
+
+Converting GML script: ${project_dir}/objects/obj_pause/Create_0.gml
+Converted description /// @description captute current background, instance deactivate
+
+Converting GML script: ${project_dir}/objects/obj_pause/Destroy_0.gml
+Converted description /// @description instance activate
+
+Converting GML script: ${project_dir}/objects/obj_pause/Alarm_0.gml
+Converted description /// @description delete background and instance destroy
+
+Converting GML script: ${project_dir}/objects/obj_pause/Draw_0.gml
+Converted description /// @description Draw the background and draw buttons
+
+Converting GML script: ${project_dir}/objects/obj_pause/KeyPress_80.gml
+Converted description /// @description If p-key selected 
+
+Converting GML script: ${project_dir}/objects/obj_pause_button/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_pause_button/Alarm_0.gml
+Converted description /// @description Set the image index to "normal" state
+
+Converting GML script: ${project_dir}/objects/obj_pause_button/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_title/Create_0.gml
+Converted description /// @description Set lives and score locally
+
+Converting GML script: ${project_dir}/objects/obj_play_button/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_play_button/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_init/Create_0.gml
+Converted description /// @description Initialize variables
+
+Converting GML script: ${project_dir}/objects/obj_init/Other_2.gml
+Converted description /// @description select os type
+
+Converting GML script: ${project_dir}/objects/obj_shop_cart/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_shop_cart/Alarm_0.gml
+Converted description /// @description Set the image index to "normal" state
+
+Converting GML script: ${project_dir}/objects/obj_shop_cart/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_bat/Alarm_2.gml
+Converted description /// @description set can_shoot true
+
+Converting GML script: ${project_dir}/objects/obj_bat/Mouse_53.gml
+Converted description /// @description set grabbed true
+
+Converting GML script: ${project_dir}/objects/obj_bat/Draw_0.gml
+Converted description /// @description Get longbat Item so change width of sprite
+
+Converting GML script: ${project_dir}/objects/obj_controller/Alarm_3.gml
+Converted description /// @description blink "Tap here go to next"
+
+Converting GML script: ${project_dir}/objects/obj_controller/Alarm_2.gml
+Converted description /// @description If ball lost and lives remain, create ball
+
+Converting GML script: ${project_dir}/objects/obj_controller/Alarm_1.gml
+Converted description /// @description obj_pause create
+
+Converting GML script: ${project_dir}/objects/obj_controller/Alarm_0.gml
+Converted description /// @description  Do we have a next level?
+
+Converting GML script: ${project_dir}/objects/obj_controller/KeyPress_40.gml
+Converted description /// @description ball speed down
+
+Converting GML script: ${project_dir}/objects/obj_controller/KeyPress_38.gml
+Converted description /// @description ball speed up
+
+Converting GML script: ${project_dir}/objects/obj_firework/Alarm_0.gml
+Converted description /// @description FIREWORK ALARM
+
+Converting GML script: ${project_dir}/objects/obj_shield_protection/Alarm_0.gml
+Converted description /// @description decrease time_left to 0
+
+Converting GML script: ${project_dir}/objects/obj_block/Create_0.gml
+Converted description /// @description set solid and stop animations
+
+Converting GML script: ${project_dir}/objects/obj_block/Destroy_0.gml
+Converted description /// @description Create Item
+
+Converting GML script: ${project_dir}/objects/obj_basic_block/Create_0.gml
+Converted description /// @description set solid and stop animations
+
+Converting GML script: ${project_dir}/objects/obj_counter/Create_0.gml
+Converted description /// @description move pixel x 
+
+Converting GML script: ${project_dir}/objects/obj_achievemet/Create_0.gml
+Converted description /// @description move pixel y 
+
+Converting GML script: ${project_dir}/objects/obj_menu_ctrl/Create_0.gml
+Converted description /// @description Set the center position of the menu, level selection objects
+
+Converting GML script: ${project_dir}/objects/obj_menu_ctrl/Draw_0.gml
+Converted description /// @description   Display the current world caption This is the number of worlds or lands containing levels
+
+Converting GML script: ${project_dir}/objects/obj_menu_ctrl/KeyPress_123.gml
+Converted description /// @description  Used for testing locked and unlocked levels
+
+Converting GML script: ${project_dir}/objects/obj_menu_next/Create_0.gml
+Converted description /// @description  Displays the Next level (if available)/// @param if available
+
+Converting GML script: ${project_dir}/objects/obj_menu_next/Draw_0.gml
+Converted description /// @description draw next level image
+
+Converting GML script: ${project_dir}/objects/obj_menu_prev/Draw_0.gml
+Converted description /// @description draw previous menu if exists
+
+Converting GML script: ${project_dir}/objects/obj_menu_move/Draw_0.gml
+Converted description /// @description  Draws the moving image
+
+Converting GML script: ${project_dir}/objects/obj_menu_current/Create_0.gml
+Converted description /// @description This object displays the selected level sprite(The normal sized image in the center)/// @param The normal sized image in the center
+
+Converting GML script: ${project_dir}/objects/obj_menu_current/Step_0.gml
+Converted description /// @description  Create a moving copy of this item
+
+Converting GML script: ${project_dir}/objects/obj_menu_current/Mouse_4.gml
+Converted description /// @description  Center image is selected
+
+Converting GML script: ${project_dir}/objects/obj_menu_current/Draw_0.gml
+Converted description /// @description  This item must always exist so is always drawn
+
+Converting GML script: ${project_dir}/objects/obj_draw_back/Draw_0.gml
+Converted builtin - line 9: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 9: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 21: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 21: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 9: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 21: view_wview -> __view_get( e__VW.WView, 0 )
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_music/Create_0.gml
+Converted description /// @description settings sound slider positions
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_music/Step_0.gml
+Converted description /// @description  the pinX position ( forced to stay between min and max )/// @param  forced to stay between min and max
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_music/Mouse_4.gml
+Converted description /// @description grab set true
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_music/Draw_0.gml
+Converted description /// @description draw slide bar and ball
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_sfx/Create_0.gml
+Converted description /// @description settings sound slider positions
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_sfx/Step_0.gml
+Converted description /// @description  the pinX position ( forced to stay between min and max )/// @param  forced to stay between min and max
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_sfx/Mouse_4.gml
+Converted description /// @description grab set true
+
+Converting GML script: ${project_dir}/objects/obj_sliderbar_sfx/Draw_0.gml
+Converted description /// @description draw slide bar and ball
+
+Converting GML script: ${project_dir}/objects/obj_home_button/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_home_button/Alarm_0.gml
+Converted description /// @description Set the image index to "normal" state
+
+Converting GML script: ${project_dir}/objects/obj_home_button/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_restart_button/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_restart_button/Alarm_0.gml
+Converted description /// @description Set the image index to "normal" state
+
+Converting GML script: ${project_dir}/objects/obj_restart_button/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_settings/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_settings/Alarm_0.gml
+Converted description /// @description Set the image index to "normal" state
+
+Converting GML script: ${project_dir}/objects/obj_settings/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_levels_button/Create_0.gml
+Converted description /// @description Stop the button from animating
+
+Converting GML script: ${project_dir}/objects/obj_levels_button/Alarm_0.gml
+Converted description /// @description Set the image index to "normal" state
+
+Converting GML script: ${project_dir}/objects/obj_levels_button/Step_0.gml
+Converted description /// @description Collision check with mouse
+
+Converting GML script: ${project_dir}/objects/obj_hud_score/Draw_0.gml
+Converted description /// @description draw current scores and highscore on gameover room
+
+Converting GML script: ${project_dir}/objects/obj_packclear/Alarm_1.gml
+Converted description /// @description blink "Tap here go to next"
+
+Converting GML script: ${project_dir}/objects/obj_packclear/Draw_0.gml
+Converted description /// @description draw current scores and highscore on gameover room
+
+Converting GML script: ${project_dir}/objects/obj_gamedone/Draw_0.gml
+Converted description /// @description draw current scores and highscore on gameover room
+
+Converting GML script: ${project_dir}/objects/obj_purchase_list/Step_0.gml
+Converted builtin - line 31: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 32: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 33: view_hview -> __view_get( e__VW.HView, 0 )
+
+Converting GML script: ${project_dir}/objects/obj_purchase_list/Draw_0.gml
+Converted builtin - line 7: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 7: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 25: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 25: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 34: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 37: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 39: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 66: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 66: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 70: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 75: view_xview -> __view_get( e__VW.XView, 0 )
+Converted builtin - line 7: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 25: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 34: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 66: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 66: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 70: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 75: view_wview -> __view_get( e__VW.WView, 0 )
+Converted builtin - line 7: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 7: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 10: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 62: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 63: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 63: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 66: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 66: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 70: view_hview -> __view_get( e__VW.HView, 0 )
+Converted builtin - line 75: view_hview -> __view_get( e__VW.HView, 0 )
+
+Converting GML script: instance inst_DA1C3C5F creation code
+Converted description /// @description Set lives and score locall
+
+Converting GML script: instance inst_DA1C3C5F creation code
+Converted description /// @description Set lives and score locall
+
+macOS icon ${options_dir}/mac/icons/icon512.png written out as 32-bit
+Missing audiogroup for sound: 'snd_background' - setting to default audio group
+Missing audiogroup for sound: 'snd_button_pressed' - setting to default audio group
+Missing audiogroup for sound: 'snd_gem' - setting to default audio group
+Missing audiogroup for sound: 'snd_getcoin' - setting to default audio group
+Missing audiogroup for sound: 'snd_music' - setting to default audio group
+Missing audiogroup for sound: 'snd_with_bricks' - setting to default audio group
+Missing audiogroup for sound: 'snd_with_wall_paddle' - setting to default audio group
+Missing audiogroup for sound: 'snd_button_clicked' - setting to default audio group
+Missing audiogroup for sound: 'snd_mega_multi_grip' - setting to default audio group
+Missing audiogroup for sound: 'snd_shoot' - setting to default audio group
+Missing audiogroup for sound: 'snd_title' - setting to default audio group
+Missing audiogroup for sound: 'snd_level_select' - setting to default audio group
+Missing audiogroup for sound: 'snd_next_level' - setting to default audio group
+Missing audiogroup for sound: 'snd_life_lost' - setting to default audio group
+Missing audiogroup for sound: 'snd_get_item' - setting to default audio group
+Missing audiogroup for sound: 'snd_gameover' - setting to default audio group
+Missing audiogroup for sound: 'snd_explosion' - setting to default audio group
+Missing audiogroup for sound: 'snd_fireworkandapplause' - setting to default audio group
+Game speed set to 30
+Added compatibility script 'action/action_change_object.gml'
+Added compatibility script 'action/action_create_object.gml'
+Added compatibility script 'action/action_draw_life_images.gml'
+Added compatibility script 'action/action_if_number.gml'
+Added compatibility script 'action/action_if_variable.gml'
+Added compatibility script 'action/action_kill_object.gml'
+Added compatibility script 'action/action_move.gml'
+Added compatibility script 'action/action_set_alarm.gml'
+Added compatibility script 'action/action_set_life.gml'
+Added compatibility script 'action/action_set_relative.gml'
+Added compatibility script 'action/action_set_score.gml'
+Added compatibility script 'action/action_set_vspeed.gml'
+Added compatibility script 'action/action_sound.gml'
+Added compatibility script 'instance/instance_create.gml'
+Added compatibility script 'object/object_get_depth.gml'
+Added compatibility script 'view/room_set_view.gml'
+Added compatibility script 'view/__view_get.gml'
+Added compatibility script 'view/__view_set.gml'
+Added compatibility script 'view/__view_set_internal.gml'
+Added compatibility script 'action/__init_action.gml'
+Added compatibility script 'view/__init_view.gml'
+Added compatibility script '__init_global.gml'
+Added compatibility script '__global_object_depths.gml'

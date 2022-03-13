@@ -1,0 +1,8 @@
+if instance_exists(obj_mb_bg)
+    exit;
+audio_play_sound(snd_level_select, 1, false);
+if(img < image_number){
+  if(instance_exists(move_inst)) {exit;}
+  active = 1;  
+}
+

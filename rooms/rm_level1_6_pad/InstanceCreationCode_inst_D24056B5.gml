@@ -1,0 +1,1 @@
+global.level_selected = 6;
