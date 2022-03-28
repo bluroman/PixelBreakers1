@@ -31,6 +31,8 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdListener;
@@ -129,13 +131,10 @@ public class GoogleMobileAdsGM extends RunnerSocial
 	}
 	
 	public String testDeviceID;
-	public boolean testID_on = false;
 	public void AdMob_SetTestDeviceId()
 	{
 		testID_on = true;
-		List<String> testDeviceIds = Arrays.asList(getDeviceID());
-		RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-		MobileAds.setRequestConfiguration(configuration);
+		MobileAds.setRequestConfiguration(Construct_RequestConfigurationBuilder());
 	}
 
 	private AdView adView = null;
@@ -558,38 +557,177 @@ public class GoogleMobileAdsGM extends RunnerSocial
 		return 1.0;
 	}
 	
+	
+	public RewardedInterstitialAd rewardedInterstitialAd = null;
+	public String rewardedInterstitialAdID = null;
+	public void AdMob_RewardedInterstitial_Init(String AdId)
+	{
+		rewardedInterstitialAdID = AdId;
+	}
+
+	public void AdMob_RewardedInterstitial_Load()
+	{
+		if(rewardedInterstitialAd == null)
+			RunnerActivity.ViewHandler.post(new Runnable()
+			{
+				public void run()
+				{
+					AdRequest adRequest = new AdRequest.Builder().build();
+
+					RewardedInterstitialAd.load(activity,rewardedInterstitialAdID,adRequest, new RewardedInterstitialAdLoadCallback()
+					{
+						@Override
+						public void onAdFailedToLoad(@NonNull LoadAdError loadAdError)
+						{
+							rewardedInterstitialAd = null;
+
+							int dsMapIndex = RunnerJNILib.jCreateDsMap(null, null, null);
+							RunnerJNILib.DsMapAddString(dsMapIndex,"type","AdMob_RewardedInterstitial_OnLoadFailed");
+							RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+						}
+
+						@Override
+						public void onAdLoaded(@NonNull RewardedInterstitialAd rewardedInterstitialAd_)
+						{
+							rewardedInterstitialAd = rewardedInterstitialAd_;
+
+							int dsMapIndex = RunnerJNILib.jCreateDsMap(null, null, null);
+							RunnerJNILib.DsMapAddString(dsMapIndex,"type","AdMob_RewardedInterstitial_OnLoaded");
+							RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+						}
+					});
+				}
+			});
+	}
+
+
+	public void AdMob_RewardedInterstitial_Show()
+	{
+		if(rewardedInterstitialAd == null)
+			return;
+
+		RunnerActivity.ViewHandler.post(new Runnable()
+		{
+			public void run()
+			{
+				rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback()
+				{
+					@Override
+					public void onAdDismissedFullScreenContent()
+					{
+						int dsMapIndex = RunnerJNILib.jCreateDsMap(null, null, null);
+						RunnerJNILib.DsMapAddString(dsMapIndex,"type","AdMob_RewardedInterstitial_OnDismissed");
+						RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+					}
+
+					@Override
+					public void onAdFailedToShowFullScreenContent(AdError adError)
+					{
+						int dsMapIndex = RunnerJNILib.jCreateDsMap(null, null, null);
+						RunnerJNILib.DsMapAddString(dsMapIndex,"type","AdMob_RewardedInterstitial_OnShowFailed");
+						RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+					}
+
+					@Override
+					public void onAdShowedFullScreenContent()
+					{
+						int dsMapIndex = RunnerJNILib.jCreateDsMap(null, null, null);
+						RunnerJNILib.DsMapAddString(dsMapIndex,"type","AdMob_RewardedInterstitial_OnFullyShown");
+						RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+					}
+				});
+
+				rewardedInterstitialAd.show(activity, new OnUserEarnedRewardListener()
+				{
+					@Override
+					public void onUserEarnedReward(@NonNull RewardItem rewardItem)
+					{
+						int rewardAmount = rewardItem.getAmount();
+						String rewardType = rewardItem.getType();
+
+						int dsMapIndex = RunnerJNILib.jCreateDsMap(null, null, null);
+						RunnerJNILib.DsMapAddString(dsMapIndex,"type","AdMob_RewardedInterstitial_OnReward");
+						RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+					}
+				});
+				rewardedInterstitialAd = null;
+			}
+		});
+	}
+	
+	public double AdMob_RewardedInterstitial_IsLoaded()
+	{
+		if(rewardedInterstitialAd == null)
+			return 0.0;
+
+		return 1.0;
+	}
+	
 	public void AdMob_Targeting_COPPA(double COPPA)
 	{
-		RequestConfiguration.Builder RequestConfiguration = new RequestConfiguration.Builder();
-		if(COPPA > 0.5)
-			RequestConfiguration = RequestConfiguration.setTagForChildDirectedTreatment(/*RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE*/1);
-		else
-			RequestConfiguration = RequestConfiguration.setTagForChildDirectedTreatment(/*RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_FALSE*/0);
-		MobileAds.setRequestConfiguration(RequestConfiguration.build());
+		targetCOPPA = COPPA > 0.5;
+		MobileAds.setRequestConfiguration(Construct_RequestConfigurationBuilder());
 	}
 	
 	public void AdMob_Targeting_UnderAge(double underAge)
 	{
-		RequestConfiguration.Builder RequestConfiguration = new RequestConfiguration.Builder();
-		if(underAge > 0.5)
-			RequestConfiguration = RequestConfiguration.setTagForUnderAgeOfConsent(/*RequestConfiguration.TAG_FOR_UNDER_AGE_OF_CONSENT_TRUE*/1);
-		else
-			RequestConfiguration = RequestConfiguration.setTagForUnderAgeOfConsent(/*RequestConfiguration.TAG_FOR_UNDER_AGE_OF_CONSENT_FALSE*/0);
-		MobileAds.setRequestConfiguration(RequestConfiguration.build());
+		targetUnderAge = underAge >= 0.5;
+		MobileAds.setRequestConfiguration(Construct_RequestConfigurationBuilder());
 	}
 	
 	public void AdMob_Targeting_MaxAdContentRating(double contentRating)
 	{
-		RequestConfiguration.Builder RequestConfiguration = new RequestConfiguration.Builder();
 		switch((int)contentRating)
 		{
-			case 0: RequestConfiguration = RequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_G*/"G"); break;
-			case 1: RequestConfiguration = RequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_PG*/"PG"); break;
-			case 2: RequestConfiguration = RequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_T*/"T"); break;
-			case 3: RequestConfiguration = RequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_MA*/"MA"); break;
+			case 0: targetG = true; break;
+			case 1: targetPG = true; break;
+			case 2: targetT = true; break;
+			case 3: targetMA = true; break;
+		}
+		MobileAds.setRequestConfiguration(Construct_RequestConfigurationBuilder());
+	}
+	
+	
+	public boolean testID_on = false;
+	public boolean targetCOPPA = false;
+	public boolean targetUnderAge = false;
+	public boolean targetG = false;
+	public boolean targetPG = false;
+	public boolean targetT = false;
+	public boolean targetMA = false;
+	public RequestConfiguration Construct_RequestConfigurationBuilder()//(test,targetCOPPA,targetUnderAge,targetG,targetPG,targetT,targetMA)
+	{
+		RequestConfiguration.Builder mRequestConfiguration = new RequestConfiguration.Builder();
+		
+		if(testID_on)
+		{
+			List<String> testDeviceIds = Arrays.asList(getDeviceID());
+			mRequestConfiguration = mRequestConfiguration.setTestDeviceIds(testDeviceIds);
 		}
 		
-		MobileAds.setRequestConfiguration(RequestConfiguration.build());		
+		if(targetCOPPA)
+			mRequestConfiguration = mRequestConfiguration.setTagForChildDirectedTreatment(/*RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE*/1);
+		else
+			mRequestConfiguration = mRequestConfiguration.setTagForChildDirectedTreatment(/*RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_FALSE*/0);
+		
+		if(targetUnderAge)
+			mRequestConfiguration = mRequestConfiguration.setTagForUnderAgeOfConsent(/*RequestConfiguration.TAG_FOR_UNDER_AGE_OF_CONSENT_TRUE*/1);
+		else
+			mRequestConfiguration = mRequestConfiguration.setTagForUnderAgeOfConsent(/*RequestConfiguration.TAG_FOR_UNDER_AGE_OF_CONSENT_FALSE*/0);
+		
+		if(targetG)
+			mRequestConfiguration = mRequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_G*/"G");
+	
+		if(targetPG)
+			mRequestConfiguration = mRequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_PG*/"PG");
+		
+		if(targetT)
+			mRequestConfiguration = mRequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_T*/"T");	
+		
+		if(targetMA)
+			mRequestConfiguration = mRequestConfiguration.setMaxAdContentRating(/*RequestConfiguration.MAX_AD_CONTENT_RATING_MA*/"MA");
+		
+		return mRequestConfiguration.build();
 	}
 	
 	private void AdMob_AdRequest()

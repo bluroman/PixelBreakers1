@@ -55,7 +55,7 @@ switch(async_load[?"type"])
 	case "AdMob_OnInitialized":
 		// At this point the AdMob API succeeded to initialize.
 		// We use this event to load both the interstitial/rewarded video ads.
-		//AdMob_Interstitial_Load();
+		AdMob_Interstitial_Load();
 		//AdMob_RewardedVideo_Load();
 		show_debug_message("AdMob OnInitialized");
 		break;
@@ -89,20 +89,45 @@ switch(async_load[?"type"])
 	// AdMob_Interstitial_Show succeeded
 	case "AdMob_Interstitial_OnFullyShown":
 		// At this point the interstitial ad succeeded to show.
+		show_debug_message("AdMob Interstitial OnFullyShown");
+		if(go_to_next)
+		{
+			if(global.world_selected == simpsonpackIndex)
+				room_restart()
+			else
+				room_goto_next()
+		}
+		
 		break;
 
 	// AdMob_Interstitial_Show failed
 	case "AdMob_Interstitial_OnShowFailed":
 		// At this point the interstitial ad failed to show.
 		// Here we use this event to load the interstitial ad again (it could be a load problem).
+		show_debug_message("AdMob Interstitial OnShowFailed");
 		AdMob_Interstitial_Load();
+		if(go_to_next)
+		{
+			if(global.world_selected == simpsonpackIndex)
+				room_restart()
+			else
+				room_goto_next()
+		}
 		break;
 	
 	// AdMob_Interstitial got dismissed
 	case "AdMob_Interstitial_OnDismissed":
 		// At this point the interstitial just got dismissed.
 		// Here we use this event to load the next interstitial ad.
+		show_debug_message("AdMob Interstitial OnDismissed");
 		AdMob_Interstitial_Load();
+		if(go_to_next)
+		{
+			if(global.world_selected == simpsonpackIndex)
+				room_restart()
+			else
+				room_goto_next()
+		}
 		break;
 	
 	// AdMob_RewardedVideo_Load succeeded
@@ -150,6 +175,7 @@ switch(async_load[?"type"])
 		rewarded_viewed = true;
         lives++;
 		break;
+	
 }
 //var _id = async_load[? "id"];
 //    if _id == GoogleMobileAds_ASyncEvent

@@ -19,6 +19,10 @@
 @property(nonatomic, strong) GADRewardedAd *rewardAd;
 @property(nonatomic, strong) GADRewardedAd *rewardAd_keepMe;
 @property(nonatomic, strong) NSString *rewardAd_ID;
+@property(nonatomic, strong) GADRewardedInterstitialAd *rewardedInterstitialAd;
+@property(nonatomic, strong) GADRewardedInterstitialAd *rewardedInterstitialAd_keepMe;
+@property(nonatomic, strong) NSString *rewardInterstitialAd_ID;
+
 @property(nonatomic, strong) UMPConsentForm *myForm;
 
 @property(nonatomic, strong) GADRequest *request_interstitial;

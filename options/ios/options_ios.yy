@@ -1,7 +1,7 @@
 {
   "option_ios_display_name": "PixelBreakers",
   "option_ios_bundle_name": "com.bluroman.PixelBreakers",
-  "option_ios_version": "2.1.1",
+  "option_ios_version": "2.2.0",
   "option_ios_output_dir": "~/GameMakerStudio2/iOS",
   "option_ios_team_id": "9989FERQ9X",
   "option_ios_orientation_portrait": true,

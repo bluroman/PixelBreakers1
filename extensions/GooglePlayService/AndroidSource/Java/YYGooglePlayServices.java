@@ -828,13 +828,14 @@ public class YYGooglePlayServices extends RunnerSocial
 			@Override
 			public void onComplete(@NonNull Task<AnnotatedData<LeaderboardsClient.LeaderboardScores>> task) 
 			{
-				LeaderboardsClient.LeaderboardScores mLeaderboardScores = task.getResult().get();
-				LeaderboardScoreBuffer mLeaderboardScoreBuffer = mLeaderboardScores.getScores();
-
 				try
 				{
+					// This can thrown an extension needs to be inside the try/catch
+					LeaderboardsClient.LeaderboardScores mLeaderboardScores = task.getResult().get();
+
 					JSONArray list = new JSONArray();
 					
+					LeaderboardScoreBuffer mLeaderboardScoreBuffer = mLeaderboardScores.getScores();
 					for(LeaderboardScore mLeaderboardScore : mLeaderboardScoreBuffer)
 					{
 						JSONObject map = LeaderboardScoreJSON(mLeaderboardScore);
@@ -849,6 +850,10 @@ public class YYGooglePlayServices extends RunnerSocial
 						RunnerJNILib.DsMapAddString( dsMapIndex, "leaderboard", LeaderboardJSON(mLeaderboardScores.getLeaderboard()));
 						RunnerJNILib.DsMapAddString( dsMapIndex, "data", list.toString());
 					}
+
+					// LeaderboardsClient.LeaderboardScores is a releasable object that needs to be release after use (causes memory leaks otherwise)
+					mLeaderboardScores.release();
+
 					RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex, EVENT_OTHER_SOCIAL);
 				}
 				catch(Exception e)
@@ -871,14 +876,14 @@ public class YYGooglePlayServices extends RunnerSocial
 			@Override
 			public void onComplete(@NonNull Task<AnnotatedData<LeaderboardsClient.LeaderboardScores>> task) 
 			{
-				
-				LeaderboardsClient.LeaderboardScores mLeaderboardScores = task.getResult().get();
-				LeaderboardScoreBuffer mLeaderboardScoreBuffer = mLeaderboardScores.getScores();
-
 				try
 				{
+					// This can thrown an extension needs to be inside the try/catch
+					LeaderboardsClient.LeaderboardScores mLeaderboardScores = task.getResult().get();
+
 					JSONArray list = new JSONArray();
 					
+					LeaderboardScoreBuffer mLeaderboardScoreBuffer = mLeaderboardScores.getScores();
 					for(LeaderboardScore mLeaderboardScore : mLeaderboardScoreBuffer)
 					{
 						JSONObject map = LeaderboardScoreJSON(mLeaderboardScore);
@@ -893,6 +898,10 @@ public class YYGooglePlayServices extends RunnerSocial
 						RunnerJNILib.DsMapAddString( dsMapIndex, "leaderboard", LeaderboardJSON(mLeaderboardScores.getLeaderboard()));
 						RunnerJNILib.DsMapAddString( dsMapIndex, "data", list.toString());
 					}
+
+					// LeaderboardsClient.LeaderboardScores is a releasable object that needs to be release after use (causes memory leaks otherwise)
+					mLeaderboardScores.release();
+
 					RunnerJNILib.CreateAsynEventWithDSMap(dsMapIndex, EVENT_OTHER_SOCIAL);
 				}
 				catch(Exception e)

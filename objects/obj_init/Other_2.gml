@@ -42,11 +42,11 @@ if (global.Config > 0)
         r = room_next(r); // This is not room_goto_next()!
     }
 }
-if (global.Config > 0)
-    room_goto(rm_title);
-else
-{
-    //show_message("pad room go");
-    room_goto(rm_title_pad);
-}
+//if (global.Config > 0)
+//    room_goto(rm_title);
+//else
+//{
+//    //show_message("pad room go");
+//    room_goto(rm_title_pad);
+//}
 

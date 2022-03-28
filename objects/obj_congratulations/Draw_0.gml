@@ -46,7 +46,14 @@ else
                     if(global.simpsonpack_enabled)
                     {
                         global.level_selected++;
-                        room_restart();
+						if AdMob_Interstitial_IsLoaded()
+						{
+							AdMob_Interstitial_Show()
+							global.interstitial_loaded = false
+							obj_controller.go_to_next = true
+						}
+						else room_restart();
+                        //room_restart();
                     }
                     else
                     {
@@ -54,7 +61,17 @@ else
                     }
                     
                 }
-                else room_goto_next();
+                else
+				{
+					if AdMob_Interstitial_IsLoaded()
+					{
+						AdMob_Interstitial_Show()
+						global.interstitial_loaded = false
+						obj_controller.go_to_next = true
+					}
+					else room_goto_next()
+					
+				}//room_goto_next();
             }
             else
             {

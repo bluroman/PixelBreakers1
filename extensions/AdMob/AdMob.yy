@@ -3,7 +3,7 @@
   "options": [],
   "exportToGame": true,
   "supportedTargets": -1,
-  "extensionVersion": "0.0.1",
+  "extensionVersion": "1.0.6",
   "packageId": "",
   "productId": "",
   "author": "",
@@ -70,6 +70,12 @@
         {"externalName":"AdMob_Settings_SetMuted","kind":4,"help":"AdMob_Settings_SetMuted(bool)","hidden":false,"returnType":1,"argCount":0,"args":[
             2,
           ],"resourceVersion":"1.0","name":"AdMob_Settings_SetMuted","tags":[],"resourceType":"GMExtensionFunction",},
+        {"externalName":"AdMob_RewardedInterstitial_Init","kind":4,"help":"AdMob_RewardedInterstitial_Init(id)","hidden":false,"returnType":1,"argCount":0,"args":[
+            1,
+          ],"resourceVersion":"1.0","name":"AdMob_RewardedInterstitial_Init","tags":[],"resourceType":"GMExtensionFunction",},
+        {"externalName":"AdMob_RewardedInterstitial_Load","kind":4,"help":"AdMob_RewardedInterstitial_Load()","hidden":false,"returnType":1,"argCount":0,"args":[],"resourceVersion":"1.0","name":"AdMob_RewardedInterstitial_Load","tags":[],"resourceType":"GMExtensionFunction",},
+        {"externalName":"AdMob_RewardedInterstitial_Show","kind":4,"help":"AdMob_RewardedInterstitial_Show()","hidden":false,"returnType":1,"argCount":0,"args":[],"resourceVersion":"1.0","name":"AdMob_RewardedInterstitial_Show","tags":[],"resourceType":"GMExtensionFunction",},
+        {"externalName":"AdMob_RewardedInterstitial_IsLoaded","kind":4,"help":"AdMob_RewardedInterstitial_IsLoaded()","hidden":false,"returnType":2,"argCount":0,"args":[],"resourceVersion":"1.0","name":"AdMob_RewardedInterstitial_IsLoaded","tags":[],"resourceType":"GMExtensionFunction",},
       ],"constants":[
         {"value":"0","hidden":false,"resourceVersion":"1.0","name":"AdMob_Banner_NORMAL","tags":[],"resourceType":"GMExtensionConstant",},
         {"value":"1","hidden":false,"resourceVersion":"1.0","name":"AdMob_Banner_LARGE","tags":[],"resourceType":"GMExtensionConstant",},
@@ -124,6 +130,10 @@
         {"name":"AdMob_Targeting_MaxAdContentRating","path":"extensions/AdMob/AdMob.yy",},
         {"name":"AdMob_Settings_SetVolume","path":"extensions/AdMob/AdMob.yy",},
         {"name":"AdMob_Settings_SetMuted","path":"extensions/AdMob/AdMob.yy",},
+        {"name":"AdMob_RewardedInterstitial_Init","path":"extensions/AdMob/AdMob.yy",},
+        {"name":"AdMob_RewardedInterstitial_Load","path":"extensions/AdMob/AdMob.yy",},
+        {"name":"AdMob_RewardedInterstitial_Show","path":"extensions/AdMob/AdMob.yy",},
+        {"name":"AdMob_RewardedInterstitial_IsLoaded","path":"extensions/AdMob/AdMob.yy",},
       ],"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMExtensionFile",},
   ],
   "classname": "GoogleMobileAdsGM",

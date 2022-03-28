@@ -40,6 +40,7 @@ function scr_init_globals() {
 	//global.interLoading = false;
 	global.interstitial_loaded = false;
 	global.playTimes = 0;
+	global.playLevels = 0;
 	scr_init_achievements();
 	globalvar bat_length_level;
 	bat_length_level[0] = 0.25;
@@ -75,7 +76,12 @@ function scr_init_globals() {
 	AdMob_Banner_Init(global.bannerId);
 	AdMob_Interstitial_Init(global.interstitialId);
 	AdMob_RewardedVideo_Init(global.rewardedId);
-	AdMob_Interstitial_Load();
+	
+	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_DEBUG_GEOGRAPHY_EEA);
+	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_DEBUG_GEOGRAPHY_DISABLED);
+	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_DEBUG_GEOGRAPHY_NOT_EEA);
+	AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_PRODUCTION);
+	//AdMob_Interstitial_Load();
 	//GoogleMobileAds_UseTestAds(true,"8F2E910B1C2864240E73D1731151AEAC");
 
 

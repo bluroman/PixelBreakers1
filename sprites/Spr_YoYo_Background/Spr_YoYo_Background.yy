@@ -70,7 +70,7 @@
   "nineSlice": null,
   "parent": {
     "name": "Sprites",
-    "path": "folders/YoYoAsset/Sprites.yy",
+    "path": "folders/YoYo Extensions Assets/Sprites.yy",
   },
   "resourceVersion": "1.0",
   "name": "Spr_YoYo_Background",

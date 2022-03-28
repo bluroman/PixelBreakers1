@@ -3,7 +3,9 @@
     //audio_play_music(snd_music, true);
     if audio_is_playing(snd_title)
         audio_stop_sound(snd_title);
-    audio_play_sound(snd_music, 0, true);
+		
+	if !audio_is_playing(snd_music)
+		audio_play_sound(snd_music, 0, true);
     game_clear = false;
     ball_lost = false;
     var new_ball;
@@ -12,10 +14,19 @@
     new_ball.start = true;  
     text_alpha = 1;
     randomize();
+	global.playLevels++;
 	AdMob_RewardedVideo_Load();
+	AdMob_Interstitial_Load();
     //GoogleMobileAds_LoadRewardedVideo(global.rewardedId);
     rewarded_loaded = false;
     rewarded_viewed = false;
+	//if(global.playLevels > 1 && global.interstitial_loaded)
+    //{
+	//	AdMob_Interstitial_Show();
+    //    global.interstitial_loaded = false;
+    //    global.paused = false;
+    //}
+	
     
 if 0
 {

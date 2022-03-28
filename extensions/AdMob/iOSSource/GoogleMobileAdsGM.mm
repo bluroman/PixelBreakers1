@@ -368,6 +368,13 @@ extern "C" void createSocialAsyncEventWithDSMap(int dsmapindex);
 		dsMapAddString(dsMapIndex, "type","AdMob_RewardedVideo_OnShowFailed");
 		createSocialAsyncEventWithDSMap(dsMapIndex);
     }
+	
+    if([ad isMemberOfClass:[GADRewardedInterstitialAd class]])
+    {
+		int dsMapIndex = dsMapCreate();
+		dsMapAddString(dsMapIndex, "type","AdMob_RewardedInterstitial_OnShowFailed");
+		createSocialAsyncEventWithDSMap(dsMapIndex);
+    }
 }
 
 /// Tells the delegate that the ad presented full screen content.
@@ -387,6 +394,13 @@ extern "C" void createSocialAsyncEventWithDSMap(int dsmapindex);
 		dsMapAddString(dsMapIndex, "type","AdMob_RewardedVideo_OnFullyShown");
 		createSocialAsyncEventWithDSMap(dsMapIndex);
     }
+	
+    if([ad isMemberOfClass:[GADRewardedInterstitialAd class]])
+    {
+		int dsMapIndex = dsMapCreate();
+		dsMapAddString(dsMapIndex, "type","AdMob_RewardedInterstitial_OnFullyShown");
+		createSocialAsyncEventWithDSMap(dsMapIndex);
+    }
 }
 
 /// Tells the delegate that the ad dismissed full screen content.
@@ -404,6 +418,13 @@ extern "C" void createSocialAsyncEventWithDSMap(int dsmapindex);
     {
 		int dsMapIndex = dsMapCreate();
 		dsMapAddString(dsMapIndex, "type","AdMob_RewardedVideo_OnDismissed");
+		createSocialAsyncEventWithDSMap(dsMapIndex);
+    }
+	
+    if([ad isMemberOfClass:[GADRewardedInterstitialAd class]])
+    {
+		int dsMapIndex = dsMapCreate();
+		dsMapAddString(dsMapIndex, "type","AdMob_RewardedInterstitial_OnDismissed");
 		createSocialAsyncEventWithDSMap(dsMapIndex);
     }
 }
@@ -445,31 +466,86 @@ extern "C" void createSocialAsyncEventWithDSMap(int dsmapindex);
 
 -(void) AdMob_RewardedVideo_Show
 {
-    if(self.rewardAd)
-    {
-        [self.rewardAd presentFromRootViewController:g_controller userDidEarnRewardHandler:^
-        {
-            NSDecimalNumber *amount = self.rewardAd.adReward.amount;
-			
-			int dsMapIndex = dsMapCreate();
-			dsMapAddString(dsMapIndex, "type","AdMob_RewardedVideo_OnReward");
-			createSocialAsyncEventWithDSMap(dsMapIndex);
+    if(self.rewardAd == nil)
+		return;
+	
+	[self.rewardAd presentFromRootViewController:g_controller userDidEarnRewardHandler:^
+	{
+		NSDecimalNumber *amount = self.rewardAd.adReward.amount;
+		
+		int dsMapIndex = dsMapCreate();
+		dsMapAddString(dsMapIndex, "type","AdMob_RewardedVideo_OnReward");
+		createSocialAsyncEventWithDSMap(dsMapIndex);
 
-        }];
-        
-        self.rewardAd_keepMe = self.rewardAd;
-        self.rewardAd = nil;
-    }
-    else
-    {
-        NSLog(@"Ad wasn't ready");
-    }
-    
+	}];
+	
+	self.rewardAd_keepMe = self.rewardAd;
+	self.rewardAd = nil;
 }
 
 -(double) AdMob_RewardedVideo_IsLoaded
 {
     if(self.rewardAd)
+        return 1.0;
+    else
+        return 0.0;
+}
+
+	
+-(void) AdMob_RewardedInterstitial_Init:(NSString*) AdId
+{
+    self.rewardInterstitialAd_ID = AdId;
+}
+
+-(void) AdMob_RewardedInterstitial_Load
+{
+    if(self.rewardedInterstitialAd != nil)
+        return;
+	
+	[GADRewardedInterstitialAd loadWithAdUnitID:self.rewardInterstitialAd_ID request:[GADRequest request] completionHandler:^(GADRewardedInterstitialAd* _Nullable ad, NSError* _Nullable error) 
+	{
+        if(error)
+		{
+			self.rewardedInterstitialAd = nil;
+			
+			int dsMapIndex = dsMapCreate();
+			dsMapAddString(dsMapIndex, "type","AdMob_RewardedInterstitial_OnLoadFailed");
+			createSocialAsyncEventWithDSMap(dsMapIndex);
+		}
+		else
+		{
+			self.rewardedInterstitialAd = ad;
+			self.rewardedInterstitialAd.fullScreenContentDelegate = self;
+			
+			int dsMapIndex = dsMapCreate();
+			dsMapAddString(dsMapIndex, "type","AdMob_RewardedInterstitial_OnLoaded");
+			createSocialAsyncEventWithDSMap(dsMapIndex);
+        }
+      }
+  ];
+}
+
+-(void) AdMob_RewardedInterstitial_Show
+{
+    if(self.rewardedInterstitialAd == nil)
+        return;
+	
+	[self.rewardedInterstitialAd presentFromRootViewController:g_controller userDidEarnRewardHandler:^
+	{
+		//GADAdReward *reward = self.rewardedInterstitialAd.adReward;
+
+		int dsMapIndex = dsMapCreate();
+		dsMapAddString(dsMapIndex, "type","AdMob_RewardedInterstitial_OnReward");
+		createSocialAsyncEventWithDSMap(dsMapIndex);
+	}];
+	
+	self.rewardedInterstitialAd_keepMe = self.rewardedInterstitialAd;
+	self.rewardedInterstitialAd = nil;
+}
+
+-(double) AdMob_RewardedInterstitial_IsLoaded
+{
+    if(self.rewardedInterstitialAd)
         return 1.0;
     else
         return 0.0;
