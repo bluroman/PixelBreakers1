@@ -1,10 +1,11 @@
 {
-  "parent": {
-    "name": "App Tracking Transparency",
-    "path": "folders/App Tracking Transparency.yy",
+  "$GMNotes":"",
+  "%Name":"README",
+  "name":"README",
+  "parent":{
+    "name":"App Tracking Transparency",
+    "path":"folders/App Tracking Transparency.yy",
   },
-  "resourceVersion": "1.1",
-  "name": "README",
-  "tags": [],
-  "resourceType": "GMNotes",
+  "resourceType":"GMNotes",
+  "resourceVersion":"2.0",
 }

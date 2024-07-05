@@ -8,9 +8,9 @@ audio_play_sound(snd_title, 0, true);
 }
 if os_type == os_android
 {
-	if (!GooglePlayServices_IsSignedIn()) 
+	if (!GooglePlayServices_IsAuthenticated()) 
 	{
-		GooglePlayServices_StartSignInIntent();
+		GooglePlayServices_SignIn();
 	}
 }
 else if os_type == os_ios

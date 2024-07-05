@@ -6,7 +6,7 @@ highscore_add("Local", score);
 //Send the achievement
 if os_type == os_android
 {
-	if GooglePlayServices_IsSignedIn()
+	if GooglePlayServices_IsAuthenticated()()
 	{
 		show_debug_message("Achievement Available");
 		GooglePlayServices_Leaderboard_SubmitScore("CgkI7ImpkKkSEAIQAA", score,"");

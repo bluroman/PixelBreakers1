@@ -4,7 +4,7 @@ if global.world_selected = 0 and global.level_selected = 1 and !global.Ach_Newbi
     global.Ach_Newbie = 1;
 	if os_type == os_android
 	{
-		if GooglePlayServices_IsSignedIn()
+		if GooglePlayServices_IsAuthenticated()
 		{
 			GooglePlayServices_Achievements_SetSteps("CgkI7ImpkKkSEAIQAQ", 100);
 		}
@@ -27,7 +27,7 @@ if global.world_selected = 0 and global.level_selected = sprite_get_number(globa
     global.Ach_Novice = 1;
 	if os_type == os_android
 	{
-		if GooglePlayServices_IsSignedIn()
+		if GooglePlayServices_IsAuthenticated()
 		{
 			GooglePlayServices_Achievements_SetSteps("CgkI7ImpkKkSEAIQAg", 100);
 		}
@@ -50,7 +50,7 @@ if global.world_selected = 2 and global.level_selected = sprite_get_number(globa
     global.Ach_Amateur = 1;
 	if os_type == os_android
 	{
-		if GooglePlayServices_IsSignedIn()
+		if GooglePlayServices_IsAuthenticated()
 		{
 			GooglePlayServices_Achievements_SetSteps("CgkI7ImpkKkSEAIQAw", 100);
 		}
@@ -73,7 +73,7 @@ if global.world_selected = 4 and global.level_selected = sprite_get_number(globa
     global.Ach_Professional = 1;
 	if os_type == os_android
 	{
-		if GooglePlayServices_IsSignedIn()
+		if GooglePlayServices_IsAuthenticated()
 		{
 			GooglePlayServices_Achievements_SetSteps("CgkI7ImpkKkSEAIQBA", 100);
 		}
@@ -96,7 +96,7 @@ if global.world_selected = 5 and global.level_selected = sprite_get_number(globa
     global.Ach_Expert = 1;
 	if os_type == os_android
 	{
-		if GooglePlayServices_IsSignedIn()
+		if GooglePlayServices_IsAuthenticated()
 		{
 			GooglePlayServices_Achievements_SetSteps("CgkI7ImpkKkSEAIQBQ", 100);
 		}

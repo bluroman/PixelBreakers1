@@ -42,8 +42,8 @@ with(obj_ball)
     
         
 }
-if os_is_paused()
-{
-    alarm[1] = 1;
-}
+//if os_is_paused()
+//{
+//    alarm[1] = 1;
+//}
 

@@ -37,6 +37,7 @@ function scr_init_globals() {
 	ini_close();
 
 	global.paused = false;
+	global.paused_by_os = false;
 	//global.interLoading = false;
 	global.interstitial_loaded = false;
 	global.playTimes = 0;

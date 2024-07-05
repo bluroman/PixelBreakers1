@@ -2,7 +2,7 @@ global.previous_room = room;
 audio_play_sound(snd_button_clicked, 1, false);
 if os_type == os_android
 {
-	if GooglePlayServices_IsSignedIn()
+	if GooglePlayServices_IsAuthenticated()
 	{
 		//audio_play_sound(snd_active, 1, false);
 		GooglePlayServices_Achievements_Show();
@@ -10,9 +10,9 @@ if os_type == os_android
 	else
 	{
 		//audio_play_sound(snd_inactive, 1, false);
-		if (!GooglePlayServices_IsSignedIn()) 
+		if (!GooglePlayServices_IsAuthenticated()) 
 		{
-			GooglePlayServices_StartSignInIntent();
+			GooglePlayServices_SignIn();
 		}
 	}
 

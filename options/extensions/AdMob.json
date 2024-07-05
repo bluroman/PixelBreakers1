@@ -1,0 +1,69 @@
+{
+  "$GMExtensionConfigSet": "GMExtensionConfigSet",
+  "configurables": {
+    "3069a5bf-6d7d-4073-a4f9-e5f8f3449075": null,
+    "fb7dfcc4-8a4f-480d-80a1-4353f93c9a2d": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140~9166639715"
+      }
+    },
+    "b9284c2f-2652-43e0-8857-83c4b381d452": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/1643372910"
+      }
+    },
+    "4253cbf6-25ef-47ab-a865-b33f15272ba6": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/3120106118"
+      }
+    },
+    "b19aeb11-226a-4d31-a7b2-1960aa422c5d": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/1994561349"
+      }
+    },
+    "f018b3be-1c77-4cc0-bc4f-98f23755f2a5": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/1994561349"
+      }
+    },
+    "62068c1c-784e-47b3-b748-a59448d35292": {},
+    "dd7deddb-f012-47ed-9802-3003899c4691": null,
+    "538faebe-f399-430a-b961-576a73233bed": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140~9306240514"
+      }
+    },
+    "83b3436e-3ee8-432e-8fce-49754e27f5aa": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/1782973712"
+      }
+    },
+    "dabd5195-9778-41db-848d-e124050792cc": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/3259706912"
+      }
+    },
+    "f6d2fbcb-0a33-4b9b-9914-1e6afbc5b0f9": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/2735554105"
+      }
+    },
+    "6ca59a1d-8267-4f89-a230-f3402bf7ab04": {
+      "Default": {
+        "value": "ca-app-pub-6964194614288140/2735554105"
+      }
+    },
+    "a59b6674-9967-4d30-b607-61b9561a9c56": null,
+    "46974f59-b380-4f04-ad8b-f36a0ff91891": null,
+    "cc2fb2da-05f1-4e87-909b-b5d19824d731": {
+      "Default": {
+        "value": "1"
+      }
+    },
+    "d0d19117-79cc-4668-8bed-1349ca551925": null,
+    "18b08591-a1fe-4892-a653-b6cd26479dec": null,
+    "0f61eb8d-f68c-4777-bd04-c14e94f6dc9a": null,
+    "ae27ca8c-4569-427f-abd9-77ae24ab3184": null
+  }
+}
