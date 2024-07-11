@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_listhorz_drawitem_sample_custom",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_listhorz_drawitem_sample_custom",
+  "parent":{
+    "name":"sample",
+    "path":"folders/Scripts/nb_GUI/sample.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

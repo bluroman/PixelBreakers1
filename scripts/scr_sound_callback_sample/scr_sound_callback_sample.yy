@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_sound_callback_sample",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_sound_callback_sample",
+  "parent":{
+    "name":"sample",
+    "path":"folders/Scripts/nb_GUI/sample.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

@@ -36,8 +36,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_leaderboard_button",
-    "path":"sprites/spr_leaderboard_button/spr_leaderboard_button.yy",
+    "name":"spr_leaderboard_button_new",
+    "path":"sprites/spr_leaderboard_button_new/spr_leaderboard_button_new.yy",
   },
   "spriteMaskId":null,
   "visible":true,

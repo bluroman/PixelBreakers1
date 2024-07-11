@@ -30,18 +30,18 @@ else global.Config = 1;
 
 //global.Config = 0;//for test
 
-if (global.Config > 0)
-{
-    var r;
-    r = room_first;
-    while (r >= 0) {
-        if (string_pos("pad", room_get_name(r)) == 0) {
-            room_set_view_enabled(r,true);
-            room_set_view(r,0,true,0,0, 640, 960, 0,0, 640, 960,0,0,-1,-1,-1);
-        }
-        r = room_next(r); // This is not room_goto_next()!
-    }
-}
+//if (global.Config > 0)
+//{
+//    var r;
+//    r = room_first;
+//    while (r >= 0) {
+//        if (string_pos("pad", room_get_name(r)) == 0) {
+//            room_set_view_enabled(r,true);
+//            room_set_view(r,0,true,0,0, 640, 960, 0,0, 640, 960,0,0,-1,-1,-1);
+//        }
+//        r = room_next(r); // This is not room_goto_next()!
+//    }
+//}
 //if (global.Config > 0)
 //    room_goto(rm_title);
 //else

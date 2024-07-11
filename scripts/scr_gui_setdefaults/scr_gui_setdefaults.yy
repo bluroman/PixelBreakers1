@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_gui_setdefaults",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_gui_setdefaults",
+  "parent":{
+    "name":"nb_GUI",
+    "path":"folders/Scripts/nb_GUI.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

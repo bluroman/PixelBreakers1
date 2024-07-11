@@ -36,8 +36,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_achievement_button",
-    "path":"sprites/spr_achievement_button/spr_achievement_button.yy",
+    "name":"spr_achievement_button_new",
+    "path":"sprites/spr_achievement_button_new/spr_achievement_button_new.yy",
   },
   "spriteMaskId":null,
   "visible":true,
