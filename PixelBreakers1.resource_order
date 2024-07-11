@@ -43,7 +43,6 @@
     {"name":"AdMobMeta","order":2,"path":"extensions/AdMobMeta/AdMobMeta.yy",},
     {"name":"AdMobPangle","order":3,"path":"extensions/AdMobPangle/AdMobPangle.yy",},
     {"name":"AdMobUnityAds","order":4,"path":"extensions/AdMobUnityAds/AdMobUnityAds.yy",},
-    {"name":"GooglePlayServices","order":1,"path":"extensions/GooglePlayServices/GooglePlayServices.yy",},
     {"name":"Font_YoYo_30","order":1,"path":"fonts/Font_YoYo_30/Font_YoYo_30.yy",},
     {"name":"Font_YoYo_50","order":2,"path":"fonts/Font_YoYo_50/Font_YoYo_50.yy",},
     {"name":"font0","order":1,"path":"fonts/font0/font0.yy",},

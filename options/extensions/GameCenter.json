@@ -1,4 +1,11 @@
 {
   "$GMExtensionConfigSet": "GMExtensionConfigSet",
-  "configurables": null
+  "configurables": {
+    "3f1189e6-bd7a-4d8f-b24d-7502513e6124": null,
+    "734be995-0c49-48c9-9972-a1f788962493": null,
+    "639620e2-32f1-4188-bd1d-400f66d9bae3": null,
+    "1b6f3bf5-0516-499b-834c-c047782bfe72": null,
+    "d01c4bae-9fd1-4bd9-9666-e3205d0a1f88": null,
+    "b44ce8e4-4032-45d2-938d-22ee6df1e445": null
+  }
 }

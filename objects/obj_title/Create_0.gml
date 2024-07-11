@@ -23,6 +23,6 @@ else if os_type == os_ios
 	}
 }
 else show_debug_message("No GameCenter or No GooglePlayServices");
-AdMob_Banner_Create(AdMob_Banner_SMART, false);
+AdMob_Banner_Create(AdMob_Banner_NORMAL, false);
 //GoogleMobileAds_AddBannerAt(global.bannerId, GoogleMobileAds_Banner,0,0);
 

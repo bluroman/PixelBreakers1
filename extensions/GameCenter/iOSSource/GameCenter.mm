@@ -1,65 +1,112 @@
 #include "TargetConditionals.h"
 
-#ifndef BUILDMAC
-/* building inside GameMaker most likely? */
-#define BUILDMAC 0
-#endif
-
-/* build for osx only if BUILDMAC=1 is defined specifically in XCode, or if NOT building for osx. */
-/* this is to workaround a bug in GMAssetCompiler where it copies .mm and .h files from iOS into macOS */
-#if (TARGET_OS_OSX && BUILDMAC) || !TARGET_OS_OSX
-
 #import "GameCenter.h"
 
+#if !TARGET_OS_OSX
+    extern UIViewController *g_controller;
+#else
+    extern NSViewController *g_controller;
+#endif
+
 #if TARGET_OS_OSX
-#define GMGC_MACOS 1
-// enable GameMaker-GameCenter macOS specific code.
-#endif
-
-////////////////sigh:
-extern
-#ifndef GMGC_MACOS
-    UIViewController
-#else
-    NSViewController
-#endif
-*g_controller;
-
-////////////////macOS specific:
-
-#ifndef GMGC_MACOS
-// g_controller is exported by the runner, no need to provide an impl.
-// on macOS it is a little different though
-// we have to get window_handle() from the game and use GKDialogController instead.
-// yeah I know, awful, Apple Moment!
-#else
-NSViewController* g_controller = nil; // not used in macOS code, see GKDialogController.
+NSViewController* g_controller = nil;
 NSWindow* g_window = nil;
-// a global class variable for macOS calls.
+
 GameCenter* g_GameCenterSingleton = nil;
 #endif
 
-////////////////GameMaker interface: macOS implementation is in GameCenterMacOS.cpp
-const int EVENT_OTHER_SOCIAL = 70;
-extern int CreateDsMap( int _num, ... );
-extern void CreateAsynEventWithDSMap(int dsmapindex, int event_index);
-extern "C" void dsMapAddDouble(int _dsMap, const char* _key, double _value);
-extern "C" void dsMapAddString(int _dsMap, const char* _key, const char* _value);
 
+#if TARGET_OS_OSX
+#import "Extension_Interface.h"
+#include "YYRValue.h"
+#include <sstream>
+#endif
+
+const int EVENT_OTHER_SOCIAL = 70;
+
+#if TARGET_OS_OSX
+YYRunnerInterface gs_runnerInterface;
+YYRunnerInterface* g_pYYRunnerInterface;
+#else
 extern "C" void dsMapClear(int _dsMap );
 extern "C" int dsMapCreate();
 extern "C" void dsMapAddInt(int _dsMap, char* _key, int _value);
 //extern "C" void dsMapAddDouble(int _dsMap, char* _key, double _value);
-//extern "C" void dsMapAddString(int _dsMap, char* _key, char* _value);
+//extern "C" void DsMapAddString(int _dsMap, char* _key, char* _value);
 
 extern "C" int dsListCreate();
 extern "C" void dsListAddInt(int _dsList, int _value);
 extern "C" void dsListAddString(int _dsList, char* _value);
 extern "C" const char* dsListGetValueString(int _dsList, int _listIdx);
-extern "C" double dsListGetValueDouble(int _dsList, int _listIdx);
+void /*double*/ dsListGetValueDouble(int _dsList, int _listIdx);
 extern "C" int dsListGetSize(int _dsList);
 
+extern int CreateDsMap( int _num, ... );
+extern void CreateAsynEventWithDSMap(int dsmapindex, int event_index);
+extern "C" void dsMapAddDouble(int _dsMap, const char* _key, double _value);
+extern "C" void dsMapAddString(int _dsMap, const char* _key, const char* _value);
+
+
+#endif
+
+#if TARGET_OS_OSX
+extern "C" void PreGraphicsInitialisation(char* arg1)//Mac
+{
+
+}
+
+YYEXPORT void YYExtensionInitialise(const struct YYRunnerInterface* _pFunctions, size_t _functions_size)
+{
+    //copy out all the functions
+    memcpy(&gs_runnerInterface, _pFunctions, sizeof(YYRunnerInterface));
+    g_pYYRunnerInterface = &gs_runnerInterface;
+
+    if (_functions_size < sizeof(YYRunnerInterface)) {
+        DebugConsoleOutput("ERROR : runner interface mismatch in extension DLL\n ");
+    } // end if
+
+    DebugConsoleOutput("YYExtensionInitialise CONFIGURED \n ");
+}
+#endif
+
+
 @implementation GameCenter
+
+int CreateDsMap_comaptibility()
+{
+    #if TARGET_OS_OSX
+    return CreateDsMap(0,0);
+    #else
+    return CreateDsMap(0,0);
+    #endif
+}
+
+void DsMapAddString_comaptibility(int dsMapIndex, const char* _key, const char* _value)
+{
+    #if TARGET_OS_OSX
+    DsMapAddString(dsMapIndex, _key, _value);
+    #else
+    dsMapAddString(dsMapIndex, _key, _value);
+    #endif
+}
+
+void DsMapAddDouble_comaptibility(int dsMapIndex, const char* _key, double _value)
+{
+    #if TARGET_OS_OSX
+    DsMapAddDouble(dsMapIndex, _key, _value);
+    #else
+    dsMapAddDouble(dsMapIndex, _key, _value);
+    #endif
+}
+
+void CreateAsyncEventWithDSMap_comaptibility(int dsMapIndex)
+{
+    #if TARGET_OS_OSX
+    CreateAsyncEventWithDSMap(dsMapIndex, EVENT_OTHER_SOCIAL);
+    #else
+    CreateAsynEventWithDSMap(dsMapIndex, EVENT_OTHER_SOCIAL);
+    #endif
+}
 
 -(id) init {
     self = [super init];
@@ -71,36 +118,32 @@ extern "C" int dsListGetSize(int _dsList);
     
     return self;
 }
-//NOT FOR IOS
-// -(double) GameCenter_MacOS_SetWindowHandle:(NSWindow*) ptrgamewindowhandle
-// {
-// #ifndef GMGC_MACOS
-    // // always return success on iOS, no need to init anything...
-    // NSLog(@"YYGameCenter: %@", @"No need to call GameCenter_MacOS_SetWindowHandle on iOS");
-    // return 1;
-// #else
-    // NSLog(@"YYGameCenter: %@", @"Trying to obtain window handle from GML");
 
-    // g_window = ptrgamewindowhandle;
-    // if (g_window != nil)
-    // {
-        // NSLog(@"YYGameCenter: %@", @"Got a valid NSWindow pointer:");
-        // NSLog(@"YYGameCenter: %@", [g_window title]);
+#if TARGET_OS_OSX
+-(double) GameCenter_MacOS_SetWindowHandle:(NSWindow*) ptrgamewindowhandle
+{
+    NSLog(@"YYGameCenter: %@", @"Trying to obtain window handle from GML");
+
+    g_window = ptrgamewindowhandle;
+    if (g_window != nil)
+    {
+        NSLog(@"YYGameCenter: %@", @"Got a valid NSWindow pointer:");
+        NSLog(@"YYGameCenter: %@", [g_window title]);
         
-        // GKDialogController* dialogController = [GKDialogController sharedDialogController];
-        // if (dialogController != nil)
-        // {
-            // dialogController.parentWindow = g_window;
-            // NSLog(@"YYGameCenter: %@", @"Successfully set the window handle!");
-            // return 1;
-        // }
-        // else NSLog(@"YYGameCenter: %@", @"GKDialogController pointer is nil.");
-    // }
-    // else NSLog(@"YYGameCenter: %@", @"NSWindow pointer is nil.");
+        GKDialogController* dialogController = [GKDialogController sharedDialogController];
+        if (dialogController != nil)
+        {
+            dialogController.parentWindow = g_window;
+            NSLog(@"YYGameCenter: %@", @"Successfully set the window handle!");
+            return 1;
+        }
+        else NSLog(@"YYGameCenter: %@", @"GKDialogController pointer is nil.");
+    }
+    else NSLog(@"YYGameCenter: %@", @"NSWindow pointer is nil.");
     
-    // return 0;
-// #endif
-// }
+    return 0;
+}
+#endif
 
 ////////////////GKGameCenterViewController
 // https://developer.apple.com/documentation/gamekit/gkgamecenterviewcontroller?language=objc
@@ -113,7 +156,7 @@ extern "C" int dsListGetSize(int _dsList);
             return 0;
         
         gameCenterController.gameCenterDelegate = self;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -122,7 +165,7 @@ extern "C" int dsListGetSize(int _dsList);
         GKGameCenterViewController *gameCenterController = [[GKGameCenterViewController alloc] init];
         gameCenterController.gameCenterDelegate = self;
         gameCenterController.viewState = GKGameCenterViewControllerStateDefault;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -139,7 +182,7 @@ extern "C" int dsListGetSize(int _dsList);
             return 0;
         
         gameCenterController.gameCenterDelegate = self;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -148,7 +191,7 @@ extern "C" int dsListGetSize(int _dsList);
         GKGameCenterViewController *gameCenterController = [[GKGameCenterViewController alloc] init];
         gameCenterController.gameCenterDelegate = self;
         gameCenterController.viewState = GKGameCenterViewControllerStateAchievements;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -165,7 +208,7 @@ extern "C" int dsListGetSize(int _dsList);
             return 0;
         
         gameCenterController.gameCenterDelegate = self;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -185,7 +228,7 @@ extern "C" int dsListGetSize(int _dsList);
             return 0;
         
         gameCenterController.gameCenterDelegate = self;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -194,7 +237,7 @@ extern "C" int dsListGetSize(int _dsList);
         GKGameCenterViewController *gameCenterController = [[GKGameCenterViewController alloc] init];
         gameCenterController.gameCenterDelegate = self;
         gameCenterController.viewState = GKGameCenterViewControllerStateLeaderboards;
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -228,7 +271,7 @@ extern "C" int dsListGetSize(int _dsList);
         gameCenterController.gameCenterDelegate = self;
         //gameCenterController.viewState = GKGameCenterViewControllerStateLeaderboards;
         
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -241,7 +284,7 @@ extern "C" int dsListGetSize(int _dsList);
         gameCenterController.leaderboardIdentifier = leaderboardId;
         gameCenterController.leaderboardTimeScope = mGKLeaderboardTimeScope;
         
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller presentViewController: gameCenterController animated: YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] presentViewController: gameCenterController];
@@ -254,26 +297,26 @@ extern "C" int dsListGetSize(int _dsList);
 //https://developer.apple.com/documentation/gamekit/gkgamecentercontrollerdelegate?language=objc
 -(void) gameCenterViewControllerDidFinish:(GKGameCenterViewController *)gameCenterViewController;
 {
-    int dsMapIndex = CreateDsMap(0);
-    dsMapAddString(dsMapIndex, "type", "GameCenter_PresentView_DidFinish");
+    int dsMapIndex = CreateDsMap_comaptibility();
+    DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_PresentView_DidFinish");
     
     if (gameCenterViewController != nil)
     {
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         [g_controller dismissViewControllerAnimated:YES completion:nil];
 #else
         [[GKDialogController sharedDialogController] dismiss: self];
 #endif
 
-        dsMapAddDouble(dsMapIndex, "success", 1);
+        DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
     }
     else
     {
         NSLog(@"YYGameCenter: %@", @"gameCenterViewControllerDidFinish controller is nil");
-        dsMapAddDouble(dsMapIndex, "success", 0);
+        DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
     }
     
-    CreateAsynEventWithDSMap(dsMapIndex, EVENT_OTHER_SOCIAL);
+    CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
 }
 
 ////////////// GKLocalPlayer
@@ -281,7 +324,7 @@ extern "C" int dsListGetSize(int _dsList);
 -(double) GameCenter_LocalPlayer_Authenticate
 {
     [GKLocalPlayer localPlayer].authenticateHandler = ^(
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
         UIViewController
 #else
         NSViewController
@@ -290,39 +333,39 @@ extern "C" int dsListGetSize(int _dsList);
         NSError *error)
     {
         GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
-        int dsMapIndex = CreateDsMap(0);
+        int dsMapIndex = CreateDsMap_comaptibility();
         
-        dsMapAddString(dsMapIndex, "type", "GameCenter_Authenticate");
+        DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Authenticate");
         
         // authentication stages:
         if(viewController != nil) // stage 1: presenting the view controller, sometimes it can jump straight to stage 2.
         {
-#ifndef GMGC_MACOS
+#if !TARGET_OS_OSX
             [g_controller presentViewController: viewController animated:YES completion: NULL];
 #else
             NSLog(@"YYGameCenter: %@", [viewController className]);
             [[GKDialogController sharedDialogController] presentViewController: (NSViewController<GKViewController>*)viewController];
 #endif
-            dsMapAddString(dsMapIndex, "authentication_state", "presenting_view");
+            DsMapAddString_comaptibility(dsMapIndex, "authentication_state", "presenting_view");
         }
         else if (localPlayer.isAuthenticated) // stage 2: we're in!
         {
-            dsMapAddString(dsMapIndex, "authentication_state", "authenticated");
+            DsMapAddString_comaptibility(dsMapIndex, "authentication_state", "authenticated");
         }
         else // something is wrong, viewcontroller is nil, but we are not authenticated?
         {
-            dsMapAddString(dsMapIndex, "authentication_state", "unknown");
+            DsMapAddString_comaptibility(dsMapIndex, "authentication_state", "unknown");
         }
         
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
         
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     };
     
     return 1;
@@ -393,17 +436,17 @@ extern "C" int dsListGetSize(int _dsList);
         for(GKSavedGame *savedGame in savedGames)
             [array addObject:[GameCenter GKSavedGameDic: savedGame]];
         
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex,"type","GameCenter_SavedGames_Fetch");
-        dsMapAddString(dsMapIndex,"slots",(char*)[[GameCenter toJSON: array] UTF8String]);
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex,"type","GameCenter_SavedGames_Fetch");
+        DsMapAddString_comaptibility(dsMapIndex,"slots",(char*)[[GameCenter toJSON: array] UTF8String]);
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     }];
     
     return 1;
@@ -414,18 +457,18 @@ extern "C" int dsListGetSize(int _dsList);
     GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
     [localPlayer saveGameData:[mNSData dataUsingEncoding:NSUTF8StringEncoding] withName:name completionHandler:^(GKSavedGame * _Nullable savedGame, NSError * _Nullable error)
     {
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex, "type","GameCenter_SavedGames_Save");
-        dsMapAddString(dsMapIndex, "name",(char*)[name UTF8String]);
-        dsMapAddString(dsMapIndex, "slot",(char*)[[GameCenter GKSavedGameJSON: savedGame]UTF8String]);
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex, "type","GameCenter_SavedGames_Save");
+        DsMapAddString_comaptibility(dsMapIndex, "name",(char*)[name UTF8String]);
+        DsMapAddString_comaptibility(dsMapIndex, "slot",(char*)[[GameCenter GKSavedGameJSON: savedGame]UTF8String]);
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     }];
     
     return 1;
@@ -436,17 +479,17 @@ extern "C" int dsListGetSize(int _dsList);
     GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
     [localPlayer deleteSavedGamesWithName:name completionHandler:^(NSError * _Nullable error)
     {
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex, "type","GameCenter_SavedGames_Delete");
-        dsMapAddString(dsMapIndex, "name",(char*)[name UTF8String]);
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex, "type","GameCenter_SavedGames_Delete");
+        DsMapAddString_comaptibility(dsMapIndex, "name",(char*)[name UTF8String]);
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     }];
     
     return 1;
@@ -459,13 +502,13 @@ extern "C" int dsListGetSize(int _dsList);
     {
         if (error != nil)
         {
-            int dsMapIndex = CreateDsMap(0);
-            dsMapAddString(dsMapIndex, "type","GameCenter_SavedGames_GetData");
-            dsMapAddString(dsMapIndex, "name",(char*)[name UTF8String]);
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
-            CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+            int dsMapIndex = CreateDsMap_comaptibility();
+            DsMapAddString_comaptibility(dsMapIndex, "type","GameCenter_SavedGames_GetData");
+            DsMapAddString_comaptibility(dsMapIndex, "name",(char*)[name UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
             return;
         }
                 
@@ -474,26 +517,26 @@ extern "C" int dsListGetSize(int _dsList);
         {
             [mGKSavedGame loadDataWithCompletionHandler:^(NSData * _Nullable data, NSError * _Nullable error)
             {
-                int dsMapIndex = CreateDsMap(0);
-                dsMapAddString(dsMapIndex, "type","GameCenter_SavedGames_GetData");
-                dsMapAddString(dsMapIndex, "name",(char*)[name UTF8String]);
+                int dsMapIndex = CreateDsMap_comaptibility();
+                DsMapAddString_comaptibility(dsMapIndex, "type","GameCenter_SavedGames_GetData");
+                DsMapAddString_comaptibility(dsMapIndex, "name",(char*)[name UTF8String]);
                 
                 if (error != nil)
                 {
-                    dsMapAddDouble(dsMapIndex, "success", 0);
-                    dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-                    dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+                    DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
                 }
-                else dsMapAddDouble(dsMapIndex, "success", 1);
+                else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
                 
                 if (data != nil)
                 {
                     const void *_Nullable rawData = [data bytes];
                     if(rawData != nil)
-                        dsMapAddString(dsMapIndex, "data",(char *)rawData);
+                        DsMapAddString_comaptibility(dsMapIndex, "data",(char *)rawData);
                 }
                 
-                CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+                CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
             }];
             break;
         }
@@ -508,17 +551,17 @@ extern "C" int dsListGetSize(int _dsList);
     GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
     [localPlayer resolveConflictingSavedGames:self.ArrayOfConflicts[(int)conflict_ind] withData:[data dataUsingEncoding:NSUTF8StringEncoding] completionHandler:^(NSArray<GKSavedGame *> * _Nullable savedGames, NSError * _Nullable error)
     {
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex, "type","GameCenter_SavedGames_ResolveConflict");
-        dsMapAddDouble(dsMapIndex, "conflict_ind",conflict_ind);
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex, "type","GameCenter_SavedGames_ResolveConflict");
+        DsMapAddDouble_comaptibility(dsMapIndex, "conflict_ind",conflict_ind);
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     }];
     
     return 1;
@@ -536,20 +579,20 @@ extern "C" int dsListGetSize(int _dsList);
     for(GKSavedGame *savedGame in savedGames)
         [array addObject:[GameCenter GKSavedGameJSON: savedGame]];
     
-    int dsMapIndex = CreateDsMap(0);
-    dsMapAddString(dsMapIndex, "type","GameCenter_SavedGames_HasConflict");
-    dsMapAddDouble(dsMapIndex, "conflict_ind",conflict_ind);
-    dsMapAddString(dsMapIndex, "slots",(char*)[[GameCenter toJSON: array] UTF8String]);
-    CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+    int dsMapIndex = CreateDsMap_comaptibility();
+    DsMapAddString_comaptibility(dsMapIndex, "type","GameCenter_SavedGames_HasConflict");
+    DsMapAddDouble_comaptibility(dsMapIndex, "conflict_ind",conflict_ind);
+    DsMapAddString_comaptibility(dsMapIndex, "slots",(char*)[[GameCenter toJSON: array] UTF8String]);
+    CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
 }
 
 - (void)player:(GKPlayer *)player didModifySavedGame:(GKSavedGame *)savedGame;
 {
-    int dsMapIndex = CreateDsMap(0);
-    dsMapAddString(dsMapIndex, "type", "GameCenter_SavedGames_DidModify");
-    dsMapAddString(dsMapIndex, "player", (char*)[[GameCenter GKPlayerJSON:player] UTF8String]);
-    dsMapAddString(dsMapIndex, "slot", (char*)[[GameCenter GKSavedGameJSON:savedGame] UTF8String]);
-    CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+    int dsMapIndex = CreateDsMap_comaptibility();
+    DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_SavedGames_DidModify");
+    DsMapAddString_comaptibility(dsMapIndex, "player", (char*)[[GameCenter GKPlayerJSON:player] UTF8String]);
+    DsMapAddString_comaptibility(dsMapIndex, "slot", (char*)[[GameCenter GKSavedGameJSON:savedGame] UTF8String]);
+    CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
 }
 
 ////////////////// GKBasePlayer
@@ -577,16 +620,16 @@ extern "C" int dsListGetSize(int _dsList);
 {
     if (@available(iOS 14.0, macOS 11.0, *)) {
         [GKLeaderboard submitScore:(NSInteger)score context:(NSUInteger)dcontext player:[GKLocalPlayer localPlayer] leaderboardIDs:@[ leaderboardID ] completionHandler:^(NSError * _Nullable error) {
-            int dsMapIndex = CreateDsMap(0);
-            dsMapAddString(dsMapIndex, "type", "GameCenter_Leaderboard_Submit");
+            int dsMapIndex = CreateDsMap_comaptibility();
+            DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Leaderboard_Submit");
             if (error != nil)
             {
-                dsMapAddDouble(dsMapIndex, "success", 0);
-                dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-                dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+                DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+                DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
             }
-            else dsMapAddDouble(dsMapIndex, "success", 1);
-            CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+            else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+            CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
         }];
     }
     else {
@@ -596,16 +639,16 @@ extern "C" int dsListGetSize(int _dsList);
         [GKScore reportScores: @[mGKScore] withCompletionHandler:^(NSError * _Nullable error)
         {
 
-            int dsMapIndex = CreateDsMap(0);
-            dsMapAddString(dsMapIndex, "type", "GameCenter_Leaderboard_Submit");
+            int dsMapIndex = CreateDsMap_comaptibility();
+            DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Leaderboard_Submit");
             if (error != nil)
             {
-                dsMapAddDouble(dsMapIndex, "success", 0);
-                dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-                dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+                DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+                DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
             }
-            else dsMapAddDouble(dsMapIndex, "success", 1);
-            CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+            else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+            CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
         }];
     }
     
@@ -623,41 +666,41 @@ extern "C" int dsListGetSize(int _dsList);
         [GKLeaderboard loadLeaderboardsWithIDs:@[ leaderboardID ] completionHandler:^(NSArray<GKLeaderboard*>* _Nullable leaderboards, NSError* _Nullable error) {
             // did not even load basic data about the leaderboard :(
             if (error != nil || leaderboards == nil || [leaderboards count] < 1) {
-                int dsMapIndex = CreateDsMap(0);
-                dsMapAddString(dsMapIndex, "type", "GameCenter_Leaderboard_Load");
-                dsMapAddString(dsMapIndex, "leaderboard_id", (char*)[leaderboardID UTF8String]);
-                dsMapAddDouble(dsMapIndex, "id", myId);
-                dsMapAddDouble(dsMapIndex, "time_scope", timeScope);
-                dsMapAddDouble(dsMapIndex, "range_start", rangeStart);
-                dsMapAddDouble(dsMapIndex, "range_end", rangeEnd);
-                dsMapAddDouble(dsMapIndex, "player_scope", playerScope);
-                dsMapAddString(dsMapIndex, "leaderboard_title", "");
-                dsMapAddString(dsMapIndex, "leaderboard_group", "");
-                dsMapAddDouble(dsMapIndex, "leaderboard_type", -1);
-                dsMapAddDouble(dsMapIndex, "leaderboard_start_date", -1);
-                dsMapAddDouble(dsMapIndex, "leaderboard_next_start_date", -1);
-                dsMapAddDouble(dsMapIndex, "leaderboard_duration", -1);
+                int dsMapIndex = CreateDsMap_comaptibility();
+                DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Leaderboard_Load");
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_id", (char*)[leaderboardID UTF8String]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "id", myId);
+                DsMapAddDouble_comaptibility(dsMapIndex, "time_scope", timeScope);
+                DsMapAddDouble_comaptibility(dsMapIndex, "range_start", rangeStart);
+                DsMapAddDouble_comaptibility(dsMapIndex, "range_end", rangeEnd);
+                DsMapAddDouble_comaptibility(dsMapIndex, "player_scope", playerScope);
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_title", "");
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_group", "");
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_type", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_start_date", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_next_start_date", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_duration", -1);
                 
                 if (error != nil) {
-                    dsMapAddDouble(dsMapIndex, "success", 0);
-                    dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-                    dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+                    DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
                 }
-                else dsMapAddDouble(dsMapIndex, "success", 1);
+                else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
                 
-                dsMapAddDouble(dsMapIndex, "total_players_count", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "total_players_count", -1);
                 
                 /* dummy local player info */
-                dsMapAddDouble(dsMapIndex, "local_context", -1);
-                dsMapAddDouble(dsMapIndex, "local_date", -1);
-                dsMapAddDouble(dsMapIndex, "local_rank", -1);
-                dsMapAddDouble(dsMapIndex, "local_score", -1);
-                dsMapAddString(dsMapIndex, "local_formatted_score", "");
-                dsMapAddString(dsMapIndex, "local_info", "{}");
+                DsMapAddDouble_comaptibility(dsMapIndex, "local_context", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "local_date", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "local_rank", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "local_score", -1);
+                DsMapAddString_comaptibility(dsMapIndex, "local_formatted_score", "");
+                DsMapAddString_comaptibility(dsMapIndex, "local_info", "{}");
                 
-                dsMapAddDouble(dsMapIndex, "entries", 0);
+                DsMapAddDouble_comaptibility(dsMapIndex, "entries", 0);
                 
-                CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+                CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
                 return;
             }
             
@@ -678,73 +721,73 @@ extern "C" int dsListGetSize(int _dsList);
             
             GKLeaderboard* lb = [leaderboards objectAtIndex:0];
             [lb loadEntriesForPlayerScope:ps timeScope:ts range:r completionHandler:^(GKLeaderboardEntry* _Nullable_result localPlayerEntry, NSArray<GKLeaderboardEntry*>* _Nullable entries, NSInteger totalPlayerCount, NSError* _Nullable error) {
-                int dsMapIndex = CreateDsMap(0);
-                dsMapAddString(dsMapIndex, "type", "GameCenter_Leaderboard_Load");
-                dsMapAddString(dsMapIndex, "leaderboard_id", (char*)[leaderboardID UTF8String]);
-                dsMapAddDouble(dsMapIndex, "id", myId);
-                dsMapAddDouble(dsMapIndex, "time_scope", timeScope);
-                dsMapAddDouble(dsMapIndex, "range_start", rangeStart);
-                dsMapAddDouble(dsMapIndex, "range_end", rangeEnd);
-                dsMapAddDouble(dsMapIndex, "player_scope", playerScope);
-                dsMapAddString(dsMapIndex, "leaderboard_title", (char*)[[lb title] UTF8String]);
-                dsMapAddString(dsMapIndex, "leaderboard_group", (char*)[[lb groupIdentifier] UTF8String]);
+                int dsMapIndex = CreateDsMap_comaptibility();
+                DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Leaderboard_Load");
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_id", (char*)[leaderboardID UTF8String]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "id", myId);
+                DsMapAddDouble_comaptibility(dsMapIndex, "time_scope", timeScope);
+                DsMapAddDouble_comaptibility(dsMapIndex, "range_start", rangeStart);
+                DsMapAddDouble_comaptibility(dsMapIndex, "range_end", rangeEnd);
+                DsMapAddDouble_comaptibility(dsMapIndex, "player_scope", playerScope);
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_title", (char*)[[lb title] UTF8String]);
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_group", (char*)[[lb groupIdentifier] UTF8String]);
                 double lbtype = -1;
                 switch ([lb type]) {
                     case GKLeaderboardTypeClassic: lbtype = 0; break;
                     case GKLeaderboardTypeRecurring: lbtype = 1; break;
                 }
-                dsMapAddDouble(dsMapIndex, "leaderboard_type", lbtype);
-                dsMapAddDouble(dsMapIndex, "leaderboard_start_date", [GameCenter Util_NSDateToGMDate:[lb startDate]]);
-                dsMapAddDouble(dsMapIndex, "leaderboard_next_start_date", [GameCenter Util_NSDateToGMDate:[lb nextStartDate]]);
-                dsMapAddDouble(dsMapIndex, "leaderboard_duration", [lb duration]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_type", lbtype);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_start_date", [GameCenter Util_NSDateToGMDate:[lb startDate]]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_next_start_date", [GameCenter Util_NSDateToGMDate:[lb nextStartDate]]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_duration", [lb duration]);
                 
                 if (error != nil) {
-                    dsMapAddDouble(dsMapIndex, "success", 0);
-                    dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-                    dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+                    DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
                 }
-                else dsMapAddDouble(dsMapIndex, "success", 1);
+                else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
                 
-                dsMapAddDouble(dsMapIndex, "total_players_count", totalPlayerCount);
+                DsMapAddDouble_comaptibility(dsMapIndex, "total_players_count", totalPlayerCount);
                 
                 if (localPlayerEntry != nil) {
-                    dsMapAddDouble(dsMapIndex, "local_context", [localPlayerEntry context]);
-                    dsMapAddDouble(dsMapIndex, "local_date", [GameCenter Util_NSDateToGMDate:[localPlayerEntry date]]);
-                    dsMapAddDouble(dsMapIndex, "local_rank", [localPlayerEntry rank]);
-                    dsMapAddDouble(dsMapIndex, "local_score", [localPlayerEntry score]);
-                    dsMapAddString(dsMapIndex, "local_formatted_score", (char*)[[localPlayerEntry formattedScore] UTF8String]);
-                    dsMapAddString(dsMapIndex, "local_info", (char*)[[GameCenter GKPlayerJSON:[localPlayerEntry player]] UTF8String]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_context", [localPlayerEntry context]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_date", [GameCenter Util_NSDateToGMDate:[localPlayerEntry date]]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_rank", [localPlayerEntry rank]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_score", [localPlayerEntry score]);
+                    DsMapAddString_comaptibility(dsMapIndex, "local_formatted_score", (char*)[[localPlayerEntry formattedScore] UTF8String]);
+                    DsMapAddString_comaptibility(dsMapIndex, "local_info", (char*)[[GameCenter GKPlayerJSON:[localPlayerEntry player]] UTF8String]);
                 }
                 else {
                     /* dummy local player info */
-                    dsMapAddDouble(dsMapIndex, "local_context", -1);
-                    dsMapAddDouble(dsMapIndex, "local_date", -1);
-                    dsMapAddDouble(dsMapIndex, "local_rank", -1);
-                    dsMapAddDouble(dsMapIndex, "local_score", -1);
-                    dsMapAddString(dsMapIndex, "local_formatted_score", "");
-                    dsMapAddString(dsMapIndex, "local_info", "{}");
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_context", -1);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_date", -1);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_rank", -1);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_score", -1);
+                    DsMapAddString_comaptibility(dsMapIndex, "local_formatted_score", "");
+                    DsMapAddString_comaptibility(dsMapIndex, "local_info", "{}");
                 }
                 
                 if (entries == nil || [entries count] < 1) {
                     /* don't even bother with entries... */
-                    dsMapAddDouble(dsMapIndex, "entries", 0);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "entries", 0);
                 }
                 else {
-                    dsMapAddDouble(dsMapIndex, "entries", [entries count]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "entries", [entries count]);
                     for (NSUInteger i = 0; i < [entries count]; ++i) {
                         GKLeaderboardEntry* e = [entries objectAtIndex:i];
                         
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_context_%lu", i] UTF8String], e?[e context]:-1);
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_date_%lu", i] UTF8String], e?[GameCenter Util_NSDateToGMDate:[e date]]:-1);
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_rank_%lu", i] UTF8String], e?[e rank]:-1);
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_score_%lu", i] UTF8String], e?[e score]:-1);
-                        dsMapAddString(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_formatted_score_%lu", i] UTF8String], e?(char*)[[e formattedScore] UTF8String]:"");
-                        dsMapAddString(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_info_%lu", i] UTF8String], e?(char*)[[GameCenter GKPlayerJSON:[e player]] UTF8String]:"{}");
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_context_%lu", i] UTF8String], e?[e context]:-1);
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_date_%lu", i] UTF8String], e?[GameCenter Util_NSDateToGMDate:[e date]]:-1);
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_rank_%lu", i] UTF8String], e?[e rank]:-1);
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_score_%lu", i] UTF8String], e?[e score]:-1);
+                        DsMapAddString_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_formatted_score_%lu", i] UTF8String], e?(char*)[[e formattedScore] UTF8String]:"");
+                        DsMapAddString_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_info_%lu", i] UTF8String], e?(char*)[[GameCenter GKPlayerJSON:[e player]] UTF8String]:"{}");
                     }
                     
                 }
                 
-                CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+                CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
                 /* we're done here */
             }];
         }];
@@ -777,68 +820,68 @@ extern "C" int dsListGetSize(int _dsList);
             req.range = r;
             
             [req loadScoresWithCompletionHandler:^(NSArray<GKScore*>* _Nullable scores, NSError* _Nullable error) {
-                int dsMapIndex = CreateDsMap(0);
-                dsMapAddString(dsMapIndex, "type", "GameCenter_Leaderboard_Load");
-                dsMapAddString(dsMapIndex, "leaderboard_id", (char*)[leaderboardID UTF8String]);
-                dsMapAddDouble(dsMapIndex, "id", myId);
-                dsMapAddDouble(dsMapIndex, "time_scope", timeScope);
-                dsMapAddDouble(dsMapIndex, "range_start", rangeStart);
-                dsMapAddDouble(dsMapIndex, "range_end", rangeEnd);
-                dsMapAddDouble(dsMapIndex, "player_scope", playerScope);
-                dsMapAddString(dsMapIndex, "leaderboard_title", (char*)[[req title] UTF8String]);
-                dsMapAddString(dsMapIndex, "leaderboard_group", (char*)[[req groupIdentifier] UTF8String]);
+                int dsMapIndex = CreateDsMap_comaptibility();
+                DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Leaderboard_Load");
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_id", (char*)[leaderboardID UTF8String]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "id", myId);
+                DsMapAddDouble_comaptibility(dsMapIndex, "time_scope", timeScope);
+                DsMapAddDouble_comaptibility(dsMapIndex, "range_start", rangeStart);
+                DsMapAddDouble_comaptibility(dsMapIndex, "range_end", rangeEnd);
+                DsMapAddDouble_comaptibility(dsMapIndex, "player_scope", playerScope);
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_title", (char*)[[req title] UTF8String]);
+                DsMapAddString_comaptibility(dsMapIndex, "leaderboard_group", (char*)[[req groupIdentifier] UTF8String]);
                 /* sadly not present in old API */
-                dsMapAddDouble(dsMapIndex, "leaderboard_type", -1);
-                dsMapAddDouble(dsMapIndex, "leaderboard_start_date", -1);
-                dsMapAddDouble(dsMapIndex, "leaderboard_next_start_date", -1);
-                dsMapAddDouble(dsMapIndex, "leaderboard_duration", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_type", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_start_date", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_next_start_date", -1);
+                DsMapAddDouble_comaptibility(dsMapIndex, "leaderboard_duration", -1);
                 
                 if (error != nil) {
-                    dsMapAddDouble(dsMapIndex, "success", 0);
-                    dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-                    dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+                    DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
                 }
-                else dsMapAddDouble(dsMapIndex, "success", 1);
+                else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
                 
-                dsMapAddDouble(dsMapIndex, "total_players_count", [req maxRange]);
+                DsMapAddDouble_comaptibility(dsMapIndex, "total_players_count", [req maxRange]);
                 
                 if ([req localPlayerScore] == nil) {
                     /* dummy local player info */
-                    dsMapAddDouble(dsMapIndex, "local_context", -1);
-                    dsMapAddDouble(dsMapIndex, "local_date", -1);
-                    dsMapAddDouble(dsMapIndex, "local_rank", -1);
-                    dsMapAddDouble(dsMapIndex, "local_score", -1);
-                    dsMapAddString(dsMapIndex, "local_formatted_score", "");
-                    dsMapAddString(dsMapIndex, "local_info", "{}");
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_context", -1);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_date", -1);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_rank", -1);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_score", -1);
+                    DsMapAddString_comaptibility(dsMapIndex, "local_formatted_score", "");
+                    DsMapAddString_comaptibility(dsMapIndex, "local_info", "{}");
                 }
                 else {
                     GKScore* e = [req localPlayerScore];
-                    dsMapAddDouble(dsMapIndex, "local_context", [e context]);
-                    dsMapAddDouble(dsMapIndex, "local_date", [GameCenter Util_NSDateToGMDate:[e date]]);
-                    dsMapAddDouble(dsMapIndex, "local_rank", [e rank]);
-                    dsMapAddDouble(dsMapIndex, "local_score", [e value]);
-                    dsMapAddString(dsMapIndex, "local_formatted_score", (char*)[[e formattedValue] UTF8String]);
-                    dsMapAddString(dsMapIndex, "local_info", (char*)[[GameCenter GKPlayerJSON:[e player]] UTF8String]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_context", [e context]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_date", [GameCenter Util_NSDateToGMDate:[e date]]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_rank", [e rank]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "local_score", [e value]);
+                    DsMapAddString_comaptibility(dsMapIndex, "local_formatted_score", (char*)[[e formattedValue] UTF8String]);
+                    DsMapAddString_comaptibility(dsMapIndex, "local_info", (char*)[[GameCenter GKPlayerJSON:[e player]] UTF8String]);
                 }
                 
                 if (scores == nil || [scores count] < 1) {
-                    dsMapAddDouble(dsMapIndex, "entries", 0);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "entries", 0);
                 }
                 else {
-                    dsMapAddDouble(dsMapIndex, "entries", [scores count]);
+                    DsMapAddDouble_comaptibility(dsMapIndex, "entries", [scores count]);
                     for (NSUInteger i = 0; i < [scores count]; ++i) {
                         GKScore* e = [scores objectAtIndex:i];
                         
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_context_%lu", i] UTF8String], e?[e context]:-1);
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_date_%lu", i] UTF8String], e?[GameCenter Util_NSDateToGMDate:[e date]]:-1);
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_rank_%lu", i] UTF8String], e?[e rank]:-1);
-                        dsMapAddDouble(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_score_%lu", i] UTF8String], e?[e value]:-1);
-                        dsMapAddString(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_formatted_score_%lu", i] UTF8String], e?(char*)[[e formattedValue] UTF8String]:"");
-                        dsMapAddString(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_info_%lu", i] UTF8String], e?(char*)[[GameCenter GKPlayerJSON:[e player]] UTF8String]:"{}");
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_context_%lu", i] UTF8String], e?[e context]:-1);
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_date_%lu", i] UTF8String], e?[GameCenter Util_NSDateToGMDate:[e date]]:-1);
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_rank_%lu", i] UTF8String], e?[e rank]:-1);
+                        DsMapAddDouble_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_score_%lu", i] UTF8String], e?[e value]:-1);
+                        DsMapAddString_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_formatted_score_%lu", i] UTF8String], e?(char*)[[e formattedValue] UTF8String]:"");
+                        DsMapAddString_comaptibility(dsMapIndex, (char*)[[NSString stringWithFormat:@"entry_info_%lu", i] UTF8String], e?(char*)[[GameCenter GKPlayerJSON:[e player]] UTF8String]:"{}");
                     }
                 }
                 
-                CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+                CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
             }];
             
             return myId;
@@ -865,16 +908,16 @@ extern "C" int dsListGetSize(int _dsList);
     achievement.percentComplete = (float) percent;
     [GKAchievement reportAchievements:@[achievement] withCompletionHandler:^(NSError *error)
     {
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex, "type", "GameCenter_Achievement_Report");
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Achievement_Report");
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     }];
     
     return 1;
@@ -884,16 +927,16 @@ extern "C" int dsListGetSize(int _dsList);
 {
     [GKAchievement resetAchievementsWithCompletionHandler:^(NSError * _Nullable error)
     {
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex, "type", "GameCenter_Achievement_ResetAll");
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Achievement_ResetAll");
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", (char*)[[error localizedDescription] UTF8String]);
         }
-        else dsMapAddDouble(dsMapIndex, "success", 1);
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        else DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
         
     }];
     
@@ -931,20 +974,20 @@ extern "C" int dsListGetSize(int _dsList);
 {
     [GKAchievement loadAchievementsWithCompletionHandler:^(NSArray<GKAchievement *> * _Nullable achievements, NSError * _Nullable error)
     {
-        int dsMapIndex = CreateDsMap(0);
-        dsMapAddString(dsMapIndex, "type", "GameCenter_Achievement_Load");
+        int dsMapIndex = CreateDsMap_comaptibility();
+        DsMapAddString_comaptibility(dsMapIndex, "type", "GameCenter_Achievement_Load");
         if (error != nil)
         {
-            dsMapAddDouble(dsMapIndex, "success", 0);
-            dsMapAddDouble(dsMapIndex, "error_code", [error code]);
-            dsMapAddString(dsMapIndex, "error_message", [[error localizedDescription] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 0);
+            DsMapAddDouble_comaptibility(dsMapIndex, "error_code", [error code]);
+            DsMapAddString_comaptibility(dsMapIndex, "error_message", [[error localizedDescription] UTF8String]);
         }
         else
         {
-            dsMapAddDouble(dsMapIndex, "success", 1);
-            dsMapAddString(dsMapIndex, "data", [[GameCenter GKAchievementArrayJSON: achievements] UTF8String]);
+            DsMapAddDouble_comaptibility(dsMapIndex, "success", 1);
+            DsMapAddString_comaptibility(dsMapIndex, "data", [[GameCenter GKAchievementArrayJSON: achievements] UTF8String]);
 		}
-        CreateAsynEventWithDSMap(dsMapIndex,EVENT_OTHER_SOCIAL);
+        CreateAsyncEventWithDSMap_comaptibility(dsMapIndex);
     }];
     
     return 0;
@@ -1159,243 +1202,256 @@ extern "C" int dsListGetSize(int _dsList);
 
 @end
 
-#ifndef GMGC_MACOS
-/* do nothing! */
-#else
+#if TARGET_OS_OSX
 
-/* GameCenterMacOS.cpp */
-#include <cstddef>
-#include <cstdint>
-#define  GMExport __attribute__((visibility("default")))
+YYEXPORT void /*double*/ GameCenter_MacOS_SetWindowHandle(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(void* ptrwindow)
+{
+    void* ptrwindow = YYGetPtr(arg, 0);
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_MacOS_SetWindowHandle: (__bridge NSWindow*)(ptrwindow)];
+}
 
-typedef void(*GMCreateAsyncEventWithDSMap_t)(
-    int         iDSMapIndex,
-    int         iEventSubtype
-);
+YYEXPORT void /*double*/ GameCenter_PresentView_Default(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_PresentView_Default];
+}
 
-typedef int (*GMCreateDSMap_t)(
-    int         iNumElements /* = 0 */,
-    ... /*
-    const char* pcszNameStringN,
-    double      dValueN,
-    const char* pcszValueStringN */
-);
+YYEXPORT void /*double*/ GameCenter_PresentView_Achievements(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_PresentView_Achievements];
+}
 
-typedef bool(*GMDSMapAddDouble_t)(
-    int         iDSMapIndex,
-    const char* pcszKeyString,
-    double      dValue
-);
-
-typedef bool(*GMDSMapAddString_t)(
-    int         iDSMapIndex,
-    const char* pcszKeyString,
-    const char* pcszValueString
-);
-
-const char* ReturnGMString(char** storage, NSString* _Nullable input) {
-    if (*storage) {
-        free(*storage);
-        *storage = NULL;
-    }
+YYEXPORT void /*double*/ GameCenter_PresentView_Achievement(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* achid)
+{
+    const char* achid = YYGetString(arg, 0);
     
-    if (input != nil) {
-        const char* inputAsUtf8 = [input UTF8String];
-        if (inputAsUtf8) {
-            *storage = strdup(inputAsUtf8);
-        }
-    }
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_PresentView_Achievement:@(achid)];
+}
+
+YYEXPORT void /*double*/ GameCenter_PresentView_Leaderboards(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_PresentView_Leaderboards];
+}
+
+YYEXPORT void /*double*/ GameCenter_PresentView_Leaderboard(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* leaderboardId, double leaderboardTimeScope, double playerScope)
+{
+    const char* leaderboardId = YYGetString(arg, 0);
+    double leaderboardTimeScope = YYGetReal(arg, 1);
+    double playerScope = YYGetReal(arg, 2);
     
-    return *storage;
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_PresentView_Leaderboard:@(leaderboardId) leaderboardTimeScope:leaderboardTimeScope playerScope:playerScope];
 }
 
-GMExport GMCreateAsyncEventWithDSMap_t GMCreateAsyncEventWithDSMap = NULL;
-GMExport GMCreateDSMap_t               GMCreateDSMap               = NULL;
-GMExport GMDSMapAddDouble_t            GMDSMapAddDouble            = NULL;
-GMExport GMDSMapAddString_t            GMDSMapAddString            = NULL;
-
-GMExport extern "C" void RegisterCallbacks(
-    GMCreateAsyncEventWithDSMap_t pGMF1,
-    GMCreateDSMap_t               pGMF2,
-    GMDSMapAddDouble_t            pGMF3,
-    GMDSMapAddString_t            pGMF4) {
-    /* just assign the function pointers to static variables. */
-    /* the actual exported implementation is below */
-    GMCreateAsyncEventWithDSMap = pGMF1;
-    GMCreateDSMap               = pGMF2;
-    GMDSMapAddDouble            = pGMF3;
-    GMDSMapAddString            = pGMF4;
-    if (g_GameCenterSingleton == nil) {
-        g_GameCenterSingleton = [[GameCenter alloc] init];
-    }
+YYEXPORT void /*double*/ GameCenter_LocalPlayer_Authenticate(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+	g_GameCenterSingleton = [GameCenter new];
+	
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_LocalPlayer_Authenticate];
 }
 
-GMExport int CreateDsMap(
-    int _num,
-    ... /* :) */) {
-    /* let's hope this will work correctly... */
-    return GMCreateDSMap(_num /* :) */);
+YYEXPORT void /*double*/ GameCenter_LocalPlayer_IsAuthenticated(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_LocalPlayer_IsAuthenticated];
 }
 
-GMExport void CreateAsynEventWithDSMap(
-    int dsmapindex,
-    int event_index) {
-    GMCreateAsyncEventWithDSMap(dsmapindex, event_index);
+YYEXPORT void /*double*/ GameCenter_LocalPlayer_IsUnderage(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_LocalPlayer_IsUnderage];
 }
 
-GMExport extern "C" void dsMapAddDouble(
-    int _dsMap,
-    const char* _key,
-    double _value) {
-    GMDSMapAddDouble(_dsMap, _key, _value);
+YYEXPORT void /*double*/ GameCenter_LocalPlayer_IsMultiplayerGamingRestricted(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_LocalPlayer_IsMultiplayerGamingRestricted];
 }
 
-GMExport extern "C" void dsMapAddString(
-    int _dsMap,
-    const char* _key,
-    const char* _value
-) {
-    GMDSMapAddString(_dsMap, _key, _value);
+YYEXPORT void /*double*/ GameCenter_LocalPlayer_IsPersonalizedCommunicationRestricted(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_LocalPlayer_IsPersonalizedCommunicationRestricted];
 }
 
-GMExport extern "C" double GameCenter_MacOS_SetWindowHandle(void* ptrwindow) {
-    return [g_GameCenterSingleton GameCenter_MacOS_SetWindowHandle: (__bridge NSWindow*)(ptrwindow)];
+YYEXPORT void /*const char**/ GameCenter_LocalPlayer_GetInfo(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    YYCreateString(&Result,  [[g_GameCenterSingleton GameCenter_LocalPlayer_GetInfo] UTF8String]);
 }
 
-GMExport extern "C" double GameCenter_PresentView_Default() {
-    return [g_GameCenterSingleton GameCenter_PresentView_Default];
+YYEXPORT void /*double*/ GameCenter_SavedGames_Fetch(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_SavedGames_Fetch];
 }
 
-GMExport extern "C" double GameCenter_PresentView_Achievements() {
-    return [g_GameCenterSingleton GameCenter_PresentView_Achievements];
+YYEXPORT void /*double*/ GameCenter_SavedGames_Save(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* name, const char* data)
+{
+    const char* name = YYGetString(arg, 0);
+    const char* data = YYGetString(arg, 1);
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_SavedGames_Save:@(name) data:@(data)];
 }
 
-GMExport extern "C" double GameCenter_PresentView_Achievement(const char* achid) {
-    return [g_GameCenterSingleton GameCenter_PresentView_Achievement: [NSString stringWithUTF8String:(achid?achid:"")]];
+YYEXPORT void /*double*/ GameCenter_SavedGames_Delete(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* name)
+{
+    const char* name = YYGetString(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_SavedGames_Delete:@(name)];
 }
 
-GMExport extern "C" double GameCenter_PresentView_Leaderboards() {
-    return [g_GameCenterSingleton GameCenter_PresentView_Leaderboards];
+YYEXPORT void /*double*/ GameCenter_SavedGames_GetData(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* name)
+{
+    const char* name = YYGetString(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_SavedGames_GetData:@(name)];
 }
 
-GMExport extern "C" double GameCenter_PresentView_Leaderboard(const char* leaderboardId, double leaderboardTimeScope, double playerScope) {
-    return [g_GameCenterSingleton GameCenter_PresentView_Leaderboard:[NSString stringWithUTF8String:(leaderboardId?leaderboardId:"")] leaderboardTimeScope:leaderboardTimeScope playerScope:playerScope];
+YYEXPORT void /*double*/ GameCenter_SavedGames_ResolveConflict(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(double conflict_ind, const char* data)
+{
+    double conflict_ind = YYGetReal(arg, 0);
+    const char* data = YYGetString(arg, 1);
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_SavedGames_ResolveConflict:conflict_ind data:@(data)];
 }
 
-GMExport extern "C" double GameCenter_LocalPlayer_Authenticate() {
-    return [g_GameCenterSingleton GameCenter_LocalPlayer_Authenticate];
+YYEXPORT void /*double*/ GameCenter_Leaderboard_Submit(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* leaderboardID, double score, double dcontext)
+{
+    const char* leaderboardID = YYGetString(arg, 0);
+    double score = YYGetReal(arg, 1);
+    double dcontext = YYGetReal(arg, 2);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_Leaderboard_Submit:@(leaderboardID) score:score dcontext:dcontext];
 }
 
-GMExport extern "C" double GameCenter_LocalPlayer_IsAuthenticated() {
-    return [g_GameCenterSingleton GameCenter_LocalPlayer_IsAuthenticated];
+YYEXPORT void /*double*/ GameCenter_Leaderboard_LoadGlobal(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* leaderboardID, double timeScope, double rangeStart, double rangeEnd)
+{
+    const char* leaderboardID = YYGetString(arg, 0);
+    double timeScope = YYGetReal(arg, 1);
+    double rangeStart = YYGetReal(arg, 2);
+    double rangeEnd = YYGetReal(arg, 3);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_Leaderboard_LoadGlobal: @(leaderboardID) timeScope:timeScope rangeStart:rangeStart rangeEnd:rangeEnd];
 }
 
-GMExport extern "C" double GameCenter_LocalPlayer_IsUnderage() {
-    return [g_GameCenterSingleton GameCenter_LocalPlayer_IsUnderage];
+YYEXPORT void /*double*/ GameCenter_Leaderboard_LoadFriendsOnly(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* leaderboardID, double timeScope, double rangeStart, double rangeEnd)
+{
+    const char* leaderboardID = YYGetString(arg, 0);
+    double timeScope = YYGetReal(arg, 1);
+    double rangeStart = YYGetReal(arg, 2);
+    double rangeEnd = YYGetReal(arg, 3);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_Leaderboard_LoadFriendsOnly: @(leaderboardID) timeScope:timeScope rangeStart:rangeStart rangeEnd:rangeEnd];
 }
 
-GMExport extern "C" double GameCenter_LocalPlayer_IsMultiplayerGamingRestricted() {
-    return [g_GameCenterSingleton GameCenter_LocalPlayer_IsMultiplayerGamingRestricted];
+YYEXPORT void /*double*/ GameCenter_Achievement_Load(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_Achievement_Load];
 }
 
-GMExport extern "C" double GameCenter_LocalPlayer_IsPersonalizedCommunicationRestricted() {
-    return [g_GameCenterSingleton GameCenter_LocalPlayer_IsPersonalizedCommunicationRestricted];
+YYEXPORT void /*double*/ GameCenter_Achievement_Report(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(const char* identifier, double percent, double showBanner)
+{
+    const char* identifier = YYGetString(arg, 0);
+    double percent = YYGetReal(arg, 1);
+    double showBanner = YYGetReal(arg, 2);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_Achievement_Report:@(identifier) percentComplete:percent showCompletionBanner:showBanner];
 }
 
-GMExport extern "C" const char* GameCenter_LocalPlayer_GetInfo() {
-    static char* _Storage = NULL;
-    return ReturnGMString(&_Storage, [g_GameCenterSingleton GameCenter_LocalPlayer_GetInfo]);
+YYEXPORT void /*double*/ GameCenter_Achievement_ResetAll(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_Achievement_ResetAll];
 }
 
-GMExport extern "C" double GameCenter_SavedGames_Fetch() {
-    return [g_GameCenterSingleton GameCenter_SavedGames_Fetch];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_SetActive(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(double dactive)
+{
+    double dactive = YYGetReal(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_SetActive:dactive];
 }
 
-GMExport extern "C" double GameCenter_SavedGames_Save(const char* name, const char* data) {
-    return [g_GameCenterSingleton GameCenter_SavedGames_Save:[NSString stringWithUTF8String:(name?name:"")] data:[NSString stringWithUTF8String:(data?data:"")]];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_GetActive(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_GetActive];
 }
 
-GMExport extern "C" double GameCenter_SavedGames_Delete(const char* name) {
-    return [g_GameCenterSingleton GameCenter_SavedGames_Delete:[NSString stringWithUTF8String:(name?name:"")]];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_SetLocation(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(double dlocation)
+{
+    double dlocation = YYGetReal(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_SetLocation:dlocation];
 }
 
-GMExport extern "C" double GameCenter_SavedGames_GetData(const char* name) {
-    return [g_GameCenterSingleton GameCenter_SavedGames_GetData:[NSString stringWithUTF8String:(name?name:"")]];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_GetLocation(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_GetLocation];
 }
 
-GMExport extern "C" double GameCenter_SavedGames_ResolveConflict(double conflict_ind, const char* data) {
-    return [g_GameCenterSingleton GameCenter_SavedGames_ResolveConflict:conflict_ind data:[NSString stringWithUTF8String:(data?data:"")]];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_IsPresentingGameCenter(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_IsPresentingGameCenter];
 }
 
-GMExport extern "C" double GameCenter_Leaderboard_Submit(const char* leaderboardID, double score, double dcontext) {
-    return [g_GameCenterSingleton GameCenter_Leaderboard_Submit:[NSString stringWithUTF8String:(leaderboardID?leaderboardID:"")] score:score dcontext:dcontext];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_IsVisible(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_IsVisible];
 }
 
-GMExport extern "C" double GameCenter_Leaderboard_LoadGlobal(const char* leaderboardID, double timeScope, double rangeStart, double rangeEnd) {
-    return [g_GameCenterSingleton GameCenter_Leaderboard_LoadGlobal: [NSString stringWithUTF8String:(leaderboardID?leaderboardID:"")] timeScope:timeScope rangeStart:rangeStart rangeEnd:rangeEnd];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_SetShowHighlights(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(double dshow)
+{
+    double dshow = YYGetReal(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_SetShowHighlights:dshow];
 }
 
-GMExport extern "C" double GameCenter_Leaderboard_LoadFriendsOnly(const char* leaderboardID, double timeScope, double rangeStart, double rangeEnd) {
-    return [g_GameCenterSingleton GameCenter_Leaderboard_LoadFriendsOnly: [NSString stringWithUTF8String:(leaderboardID?leaderboardID:"")] timeScope:timeScope rangeStart:rangeStart rangeEnd:rangeEnd];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_GetShowHighlights(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_GetShowHighlights];
 }
 
-GMExport extern "C" double GameCenter_Achievement_Load() {
-    return [g_GameCenterSingleton GameCenter_Achievement_Load];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_GetCoordinate(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(double dcoordid)
+{
+    double dcoordid = YYGetReal(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_GetCoordinate:dcoordid];
 }
 
-GMExport extern "C" double GameCenter_Achievement_Report(const char* identifier, double percent, double showBanner) {
-    return [g_GameCenterSingleton GameCenter_Achievement_Report:[NSString stringWithUTF8String:(identifier?identifier:"")] percentComplete:percent showCompletionBanner:showBanner];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_PresentWithState(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:(double dstate)
+{
+    double dstate = YYGetReal(arg, 0);
+    
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_PresentWithState:dstate];
 }
 
-GMExport extern "C" double GameCenter_Achievement_ResetAll() {
-    return [g_GameCenterSingleton GameCenter_Achievement_ResetAll];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_SetActive(double dactive) {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_SetActive:dactive];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_GetActive() {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_GetActive];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_SetLocation(double dlocation) {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_SetLocation:dlocation];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_GetLocation() {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_GetLocation];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_IsPresentingGameCenter() {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_IsPresentingGameCenter];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_IsVisible() {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_IsVisible];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_SetShowHighlights(double dshow) {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_SetShowHighlights:dshow];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_GetShowHighlights() {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_GetShowHighlights];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_GetCoordinate(double dcoordid) {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_GetCoordinate:dcoordid];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_PresentWithState(double dstate) {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_PresentWithState:dstate];
-}
-
-GMExport extern "C" double GameCenter_AccessPoint_Present() {
-    return [g_GameCenterSingleton GameCenter_AccessPoint_Present];
+YYEXPORT void /*double*/ GameCenter_AccessPoint_Present(RValue& Result, CInstance* selfinst, CInstance* otherinst, int argc, RValue* arg)//:()
+{
+    Result.kind = VALUE_REAL;
+    Result.val =  [g_GameCenterSingleton GameCenter_AccessPoint_Present];
 }
 
 #endif
 
 
-#endif

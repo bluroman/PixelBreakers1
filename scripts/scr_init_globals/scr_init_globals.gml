@@ -74,14 +74,14 @@ function scr_init_globals() {
 		global.interstitialId = "ca-app-pub-6964194614288140/3120106118";//interstitial
 	}
 	AdMob_Initialize();
-	AdMob_Banner_Init(global.bannerId);
-	AdMob_Interstitial_Init(global.interstitialId);
-	AdMob_RewardedVideo_Init(global.rewardedId);
+	//AdMob_Banner_Init(global.bannerId);
+	//AdMob_Interstitial_Init(global.interstitialId);
+	//AdMob_RewardedVideo_Init(global.rewardedId);
 	
 	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_DEBUG_GEOGRAPHY_EEA);
 	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_DEBUG_GEOGRAPHY_DISABLED);
 	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_DEBUG_GEOGRAPHY_NOT_EEA);
-	AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_PRODUCTION);
+	//AdMob_Consent_RequestInfoUpdate(AdMob_Consent_Mode_PRODUCTION);
 	//AdMob_Interstitial_Load();
 	//GoogleMobileAds_UseTestAds(true,"8F2E910B1C2864240E73D1731151AEAC");
 

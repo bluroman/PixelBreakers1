@@ -14,7 +14,7 @@
   "copyToTargets":9007199254740998,
   "description":"",
   "exportToGame":true,
-  "extensionVersion":"1.1.2",
+  "extensionVersion":"1.3.0",
   "files":[
     {"$GMExtensionFile":"","%Name":"","constants":[
         {"$GMExtensionConstant":"","%Name":"GameCenter_Leaderboard_PlayerScope_Global","hidden":false,"name":"GameCenter_Leaderboard_PlayerScope_Global","resourceType":"GMExtensionConstant","resourceVersion":"2.0","value":"0",},
@@ -124,7 +124,7 @@
   "installdir":"",
   "iosCocoaPodDependencies":"",
   "iosCocoaPods":"",
-  "ioscodeinjection":"\r\n<YYIosEntitlements>\r\n\r\n     <key>com.apple.developer.game-center</key>\r\n      <true/>\r\n\r\n\t<key>com.apple.developer.icloud-container-identifiers</key>\r\n\t<array>\r\n\t\t<string>iCloud.${YYPackageName}</string>\r\n\t</array>\r\n\r\n\t<key>com.apple.developer.icloud-services</key>\r\n\t<array>\r\n\t\t<string>CloudDocuments</string>\r\n\t</array>\r\n\r\n</YYIosEntitlements>\r\n",
+  "ioscodeinjection":"\r\n<YYIosEntitlements>\r\n\r\n    <key>com.apple.developer.game-center</key>\r\n    <true/>\r\n\r\n    <!--###### SAVED GAMES SECTION ######-->\r\n\r\n\t<key>com.apple.developer.icloud-container-identifiers</key>\r\n\t<array>\r\n\t\t<string>iCloud.${YYBundleIdentifier}</string>\r\n\t</array>\r\n\r\n\t<key>com.apple.developer.icloud-services</key>\r\n\t<array>\r\n\t\t<string>CloudDocuments</string>\r\n\t</array>\r\n\r\n    <!--### END OF SAVED GAMES SECTION ###-->\r\n\r\n</YYIosEntitlements>\r\n",
   "iosdelegatename":"",
   "iosplistinject":"",
   "iosProps":true,
@@ -137,7 +137,18 @@
   "maclinkerflags":"",
   "macsourcedir":"",
   "name":"GameCenter",
-  "options":[],
+  "options":[
+    {"$GMExtensionOption":"","%Name":"__extOptLabel","defaultValue":"EXTRA OPTIONS:","description":"","displayName":"","exportToINI":false,"extensionId":null,"guid":"3f1189e6-bd7a-4d8f-b24d-7502513e6124","hidden":false,"listItems":[],"name":"__extOptLabel","optType":5,"resourceType":"GMExtensionOption","resourceVersion":"2.0",},
+    {"$GMExtensionOption":"","%Name":"logLevel","defaultValue":"1","description":"The log level to be used by the script file.\n0: Show only errors\n1: Show errors and warnings (recommended)\n2: Show everything (use before submitting a bug)","displayName":"Log Level","exportToINI":false,"extensionId":null,"guid":"734be995-0c49-48c9-9972-a1f788962493","hidden":false,"listItems":[
+        "0",
+        "1",
+        "2",
+      ],"name":"logLevel","optType":6,"resourceType":"GMExtensionOption","resourceVersion":"2.0",},
+    {"$GMExtensionOption":"","%Name":"versionStable","defaultValue":"2022.11.0.0","description":"","displayName":"","exportToINI":false,"extensionId":null,"guid":"639620e2-32f1-4188-bd1d-400f66d9bae3","hidden":true,"listItems":[],"name":"versionStable","optType":2,"resourceType":"GMExtensionOption","resourceVersion":"2.0",},
+    {"$GMExtensionOption":"","%Name":"versionBeta","defaultValue":"2022.1100.0.0","description":"","displayName":"","exportToINI":false,"extensionId":null,"guid":"1b6f3bf5-0516-499b-834c-c047782bfe72","hidden":true,"listItems":[],"name":"versionBeta","optType":2,"resourceType":"GMExtensionOption","resourceVersion":"2.0",},
+    {"$GMExtensionOption":"","%Name":"versionDev","defaultValue":"9.9.1.336","description":"","displayName":"","exportToINI":false,"extensionId":null,"guid":"d01c4bae-9fd1-4bd9-9666-e3205d0a1f88","hidden":true,"listItems":[],"name":"versionDev","optType":2,"resourceType":"GMExtensionOption","resourceVersion":"2.0",},
+    {"$GMExtensionOption":"","%Name":"versionLTS","defaultValue":"2022.0.1.0","description":"","displayName":"","exportToINI":false,"extensionId":null,"guid":"b44ce8e4-4032-45d2-938d-22ee6df1e445","hidden":true,"listItems":[],"name":"versionLTS","optType":2,"resourceType":"GMExtensionOption","resourceVersion":"2.0",},
+  ],
   "optionsFile":"options.json",
   "packageId":"",
   "parent":{

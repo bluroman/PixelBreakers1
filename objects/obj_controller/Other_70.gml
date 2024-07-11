@@ -171,7 +171,7 @@ switch(async_load[?"type"])
 	// AdMob_RewardedVideo triggered reward event
 	case "AdMob_RewardedVideo_OnReward":
 		// At this point you can reward the user.
-		show_message_async("User Earned Reward");
+		show_debug_message("User Earned Reward");
 		rewarded_viewed = true;
         lives++;
 		break;
