@@ -1,33 +1,11 @@
-/// @description Insert description here
-// You can write your code in this editor
-if(ds_map_exists(async_load,"type"))
-if(async_load[?"type"] == "AppTrackingTransparency")
-switch(AppTrackingTransparency_status())//in theory only 'Authorized' and 'Denied' cases can be called here
-{
-	case AppTrackingTransparency_NotDetermined:
-		// The user has not yet received an authorization request to authorize access to app-related data that can be used for tracking the user or the device.
-		show_debug_message("AppTrackingTransparency ASYNC: Not Determined")
-	break
-	
-	case AppTrackingTransparency_Authorized:
-		tracking_needed = false;
-		// The user authorizes access to app-related data that can be used for tracking the user or the device.
-		show_debug_message("AppTrackingTransparency ASYNC: Authorized")
-	break
-	
-	case AppTrackingTransparency_Denied:
-		tracking_needed = false;
-		// The user denies authorization to access app-related data that can be used for tracking the user or the device.
-		show_debug_message("AppTrackingTransparency ASYNC: Denied")
-	break
-	
-	case AppTrackingTransparency_Restricted:
-		tracking_needed = false;
-		// The authorization to access app-related data that can be used for tracking the user or the device is restricted.
-		show_debug_message("AppTrackingTransparency ASYNC: Restricted")
-	break
-}
-else 
+/// @description AdMob event handlers
+
+// We do an early exit if the 'async_load' map doesn't contain a "type" key.
+if(!ds_map_exists(async_load, "type")) exit;
+
+show_debug_message("AdMob: " + json_encode(async_load));
+
+// We switch on the type of the event being fired
 switch(async_load[? "type"])
 {
 	// AdMob_Initialize finished
@@ -67,7 +45,7 @@ switch(async_load[? "type"])
 			// from the user so we can not load the ads
 			loadAllAds();
 		}
-		break
+		break;
 	// AdMob_Consent_RequestInfoUpdate failed
 	case "AdMob_Consent_OnRequestInfoUpdateFailed":
 	
@@ -113,7 +91,8 @@ switch(async_load[? "type"])
 		// We can also now load the ads
 		// NOTE: Ads should only be loaded after the consent is answered
 		loadAllAds();
-		gpdr_needed = false;
+		//if(alarm[0] < 0)
+		//	alarm[0] = 1;
 		break;
 	
 	case "AdMob_Consent_OnShowFailed":
@@ -125,6 +104,7 @@ switch(async_load[? "type"])
 		// We can also now load the ads
 		// NOTE: Ads should only be loaded after the consent is answered
 		loadAllAds();
-		gpdr_needed = false;
+		//if(alarm[0] < 0)
+		//	alarm[0] = 1;
 		break;
 }

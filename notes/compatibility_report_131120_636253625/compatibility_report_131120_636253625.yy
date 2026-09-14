@@ -1,5 +1,5 @@
 {
-  "$GMNotes":"",
+  "$GMNotes":"v1",
   "%Name":"compatibility_report_131120_636253625",
   "name":"compatibility_report_131120_636253625",
   "parent":{

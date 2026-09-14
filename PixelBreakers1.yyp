@@ -1,8 +1,8 @@
 {
-  "$GMProject":"",
+  "$GMProject":"v1",
   "%Name":"PixelBreakers1",
   "AudioGroups":[
-    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
   "configs":{
     "children":[],
@@ -80,13 +80,14 @@
     {"$GMFolder":"","%Name":"Font","folderPath":"folders/YoYoAsset/Font.yy","name":"Font","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Sprites","folderPath":"folders/YoYoAsset/Sprites.yy","name":"Sprites","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
+  "ForcedPrefabProjectReferences":[],
   "IncludedFiles":[
     {"$GMIncludedFile":"","%Name":"Save.ini","CopyToMask":4296942,"filePath":"datafiles","name":"Save.ini","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
   ],
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.6.1.160",
+    "IDEVersion":"2024.14.4.222",
   },
   "name":"PixelBreakers1",
   "resources":[
@@ -261,6 +262,7 @@
     {"id":{"name":"rm_gamedone","path":"rooms/rm_gamedone/rm_gamedone.yy",},},
     {"id":{"name":"rm_gameover_pad","path":"rooms/rm_gameover_pad/rm_gameover_pad.yy",},},
     {"id":{"name":"rm_gameover","path":"rooms/rm_gameover/rm_gameover.yy",},},
+    {"id":{"name":"rm_init","path":"rooms/rm_init/rm_init.yy",},},
     {"id":{"name":"rm_level_select","path":"rooms/rm_level_select/rm_level_select.yy",},},
     {"id":{"name":"rm_level1_1_pad","path":"rooms/rm_level1_1_pad/rm_level1_1_pad.yy",},},
     {"id":{"name":"rm_level1_1","path":"rooms/rm_level1_1/rm_level1_1.yy",},},
@@ -543,8 +545,9 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
-    {"roomId":{"name":"rm_setup","path":"rooms/rm_setup/rm_setup.yy",},},
     {"roomId":{"name":"rm_title","path":"rooms/rm_title/rm_title.yy",},},
+    {"roomId":{"name":"rm_init","path":"rooms/rm_init/rm_init.yy",},},
+    {"roomId":{"name":"rm_setup","path":"rooms/rm_setup/rm_setup.yy",},},
     {"roomId":{"name":"rm_title_pad","path":"rooms/rm_title_pad/rm_title_pad.yy",},},
     {"roomId":{"name":"rm_select_stage","path":"rooms/rm_select_stage/rm_select_stage.yy",},},
     {"roomId":{"name":"rm_select_stage_pad","path":"rooms/rm_select_stage_pad/rm_select_stage_pad.yy",},},

@@ -2,7 +2,7 @@
   "$GMiOSOptions":"v1",
   "%Name":"iOS",
   "name":"iOS",
-  "option_ios_build_number":240,
+  "option_ios_build_number":244,
   "option_ios_bundle_name":"com.bluroman.PixelBreakers",
   "option_ios_defer_home_indicator":false,
   "option_ios_devices":2,
@@ -43,7 +43,7 @@
   "option_ios_splashscreen_background_colour":0,
   "option_ios_team_id":"9989FERQ9X",
   "option_ios_texture_page":"1024x1024",
-  "option_ios_version":"2.4.0",
+  "option_ios_version":"2.4.4",
   "resourceType":"GMiOSOptions",
   "resourceVersion":"2.0",
 }

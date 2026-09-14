@@ -7,22 +7,26 @@ switch(AppTrackingTransparency_status())//in theory only 'Authorized' and 'Denie
 {
 	case AppTrackingTransparency_NotDetermined:
 		// The user has not yet received an authorization request to authorize access to app-related data that can be used for tracking the user or the device.
-		show_debug_message("AppTrackingTransparency ASYNC: Not Determined")
-	break
+		show_debug_message("AppTrackingTransparency ASYNC: Not Determined");
+	break;
 	
 	case AppTrackingTransparency_Authorized:
 		// The user authorizes access to app-related data that can be used for tracking the user or the device.
-		show_debug_message("AppTrackingTransparency ASYNC: Authorized")
-	break
+		
+		show_debug_message("AppTrackingTransparency ASYNC: Authorized");
+		//room_goto(rm_setup);
+	break;
 	
 	case AppTrackingTransparency_Denied:
 		// The user denies authorization to access app-related data that can be used for tracking the user or the device.
-		show_debug_message("AppTrackingTransparency ASYNC: Denied")
-	break
+		show_debug_message("AppTrackingTransparency ASYNC: Denied");
+		//room_goto(rm_setup);
+	break;
 	
 	case AppTrackingTransparency_Restricted:
 		// The authorization to access app-related data that can be used for tracking the user or the device is restricted.
-		show_debug_message("AppTrackingTransparency ASYNC: Restricted")
-	break
+		show_debug_message("AppTrackingTransparency ASYNC: Restricted");
+		//room_goto(rm_setup);
+	break;
 }
 

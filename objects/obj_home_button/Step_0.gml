@@ -12,7 +12,7 @@ if instance_position(mouse_x, mouse_y, id)
             if (global.Config > 0)
                 room_goto(rm_title);
             else
-                room_goto(rm_title_pad);
+                room_goto(rm_title);
         }
     }
 }

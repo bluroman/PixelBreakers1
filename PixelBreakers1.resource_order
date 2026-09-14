@@ -201,6 +201,7 @@
     {"name":"rm_gamedone","order":11,"path":"rooms/rm_gamedone/rm_gamedone.yy",},
     {"name":"rm_gameover_pad","order":8,"path":"rooms/rm_gameover_pad/rm_gameover_pad.yy",},
     {"name":"rm_gameover","order":7,"path":"rooms/rm_gameover/rm_gameover.yy",},
+    {"name":"rm_init","order":91,"path":"rooms/rm_init/rm_init.yy",},
     {"name":"rm_level_select","order":89,"path":"rooms/rm_level_select/rm_level_select.yy",},
     {"name":"rm_level1_1_pad","order":50,"path":"rooms/rm_level1_1_pad/rm_level1_1_pad.yy",},
     {"name":"rm_level1_1","order":13,"path":"rooms/rm_level1_1/rm_level1_1.yy",},

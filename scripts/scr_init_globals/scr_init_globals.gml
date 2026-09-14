@@ -73,7 +73,7 @@ function scr_init_globals() {
 	    global.rewardedId = "ca-app-pub-6964194614288140/1994561349";
 		global.interstitialId = "ca-app-pub-6964194614288140/3120106118";//interstitial
 	}
-	AdMob_Initialize();
+	
 	//AdMob_Banner_Init(global.bannerId);
 	//AdMob_Interstitial_Init(global.interstitialId);
 	//AdMob_RewardedVideo_Init(global.rewardedId);
